@@ -17,9 +17,10 @@ const userSchema = new Schema(
     },
     image: {
       type: String,
+      default: "",
     },
-    role: {},
-    age: Number,
+    role: [{ type: String, ref: "Role" }],
+    age: { type: Number, default: null },
   },
   { timestamps: true }
 );

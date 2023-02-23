@@ -1,18 +1,18 @@
 const express = require("express");
 const router = express.Router({ mergeParams: true });
-const Order = require("../models/Order");
-const errorHandler = require("../utils/errorHandler");
+const Record = require("../models/Record");
 const role = require("../middleware/roleMiddleware");
 const auth = require("../middleware/authMiddleware");
+const errorHandler = require("../utils/errorHandler");
 
 router.get("/", role(["ADMIN"]), async (req, res) => {
   try {
-    const orders = await Order.find()
+    const records = await Record.find()
       .sort({ date: -1 })
       .skip(+req.query.offset)
       .limit(+req.query.limit);
 
-    res.status(200).json(orders);
+    res.status(200).json(records);
   } catch (error) {
     errorHandler(res, error);
   }
@@ -21,10 +21,10 @@ router.get("/", role(["ADMIN"]), async (req, res) => {
 router.get("/:userId", auth, async (req, res) => {
   try {
     if (req.params.userId === req.user._id) {
-      res.status(200).json(orders);
-      const orders = await Order.find({
-        user: req.user.id,
+      const records = await Order.find({
+        user: req.user._id,
       });
+      res.status(200).json(records);
     } else {
       return res.status(403).json({ message: "У вас нет доступа!" });
     }
@@ -35,20 +35,20 @@ router.get("/:userId", auth, async (req, res) => {
 
 router.post("/", auth, async (req, res) => {
   try {
-    const lastOrder = await Order.find().sort({ date: -1 });
-    const maxOrder = lastOrder ? lastOrder.order : 0;
-    const order = await Order.create({
-      list: req.body.list,
+    const lastRecord = await Order.find().sort({ date: -1 });
+    const maxRecord = lastRecord ? lastRecord.record : 0;
+    const record = await Record.create({
+      date: req.body.date,
+      record: maxRecord + 1,
+      service: req.body.service,
       user: req.user._id,
-      order: maxOrder + 1,
     });
 
-    await order.save();
+    await record.save();
 
-    res.status(201).json(order);
+    res.status(201).json(record);
   } catch (error) {
     errorHandler(res, error);
   }
 });
-
 module.exports = router;
