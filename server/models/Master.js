@@ -1,11 +1,15 @@
 const { Schema, model } = require("mongoose");
 
-const categorySchema = new Schema(
+const masterSchema = new Schema(
   {
     name: {
       type: String,
       required: true,
       unique: true,
+    },
+    description: {
+      type: String,
+      default: "",
     },
     image: {
       type: String,
@@ -15,4 +19,4 @@ const categorySchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = model("Category", categorySchema);
+module.exports = model("Master", masterSchema);
