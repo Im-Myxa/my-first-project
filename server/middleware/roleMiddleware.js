@@ -6,13 +6,14 @@ module.exports = function (roles) {
       next();
     }
     try {
-      const token = req.headers.authorization.split(" ")[1];
+      // const token = req.headers.authorization.split(" ")[1];
+      const token = (req.headers.authorization || "").replace(/Bearer\s?/, "");
+
       if (!token) {
         return res.status(400).json({ message: "Пользователь не авторизован" });
       }
 
-      const accessToken = config.get("accessSecret");
-      const { role: userRoles } = tokenService.validateAccess(token);
+      const { role: userRoles } = tokenService.validateRefresh(token);
 
       let hasRole = false;
       userRoles.forEach((role) => {

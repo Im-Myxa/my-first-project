@@ -5,7 +5,9 @@ module.exports = function (req, res, next) {
     next();
   }
   try {
-    const token = req.headers.authorization.split(" ")[1];
+    // const token = req.headers.authorization.split(" ")[1];
+    const token = (req.headers.authorization || "").replace(/Bearer\s?/, "");
+
     if (!token) {
       return res.status(401).json({ message: "Пользователь не авторизован" });
     }
@@ -16,7 +18,6 @@ module.exports = function (req, res, next) {
     req.user = decodedData;
     next();
   } catch (error) {
-    console.log(error);
     return res.status(400).json({ message: "Пользователь не авторизован" });
   }
 };
