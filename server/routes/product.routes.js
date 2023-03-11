@@ -3,6 +3,7 @@ const router = express.Router({ mergeParams: true });
 const Product = require("../models/Product");
 const errorHandler = require("../utils/errorHandler");
 const roleMiddleware = require("../middleware/roleMiddleware");
+const isAuth = require("../middleware/authMiddleware");
 const upload = require("../middleware/upload");
 
 router.get("/:categoryId?/:productId?", async (req, res) => {
@@ -31,7 +32,7 @@ router.post(
   async (req, res) => {
     try {
       const product = await Product.create({
-        name: req.body.name,
+        title: req.body.title,
         description: req.body.description,
         price: req.body.price,
         category: req.body.category,
@@ -39,7 +40,7 @@ router.post(
       });
       await product.save();
 
-      res.status(201).json(product);
+      res.status(201).json({ product, message: "Продукт создан" });
     } catch (error) {
       errorHandler(res, error);
     }
@@ -52,7 +53,7 @@ router.patch(
   upload.single("image"),
   async (req, res) => {
     const updated = {
-      name: req.body.name,
+      title: req.body.title,
       description: req.body.description,
       price: req.body.price,
       category: req.body.category,
@@ -70,7 +71,7 @@ router.patch(
         { $set: updated },
         { new: true }
       );
-      res.status(200).json(product);
+      res.status(200).json({ product, message: "Продукт был изменен" });
     } catch (error) {
       errorHandler(res, error);
     }
