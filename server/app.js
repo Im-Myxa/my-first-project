@@ -25,6 +25,8 @@ if (process.env.NODE_ENV === "production") {
   console.log("Development");
 }
 
+mongoose.syncIndexes("strictQuery", true);
+
 async function start() {
   try {
     await mongoose.connect(config.get("mongoUri"));

@@ -6,16 +6,16 @@ const roleMiddleware = require("../middleware/roleMiddleware");
 const isAuth = require("../middleware/authMiddleware");
 const upload = require("../middleware/upload");
 
-router.get("/:categoryId?/:productId?", async (req, res) => {
+router.get("/:productId?", async (req, res) => {
   try {
     if (req.params.productId) {
       const product = await Product.findById(req.params.productId);
       res.status(200).json(product);
-    } else if (req.params.categoryId) {
-      const products = await Product.find({
-        category: req.params.categoryId,
-      });
-      res.status(200).json(products);
+      // } else if (req.params.categoryId) {
+      //   const products = await Product.find({
+      //     category: req.params.categoryId,
+      //   });
+      //   res.status(200).json(products);
     } else {
       const products = await Product.find();
       res.status(200).json(products);
@@ -49,28 +49,24 @@ router.post(
 
 router.patch(
   "/:productId",
-  roleMiddleware(["ADMIN"]),
   upload.single("image"),
+  roleMiddleware(["ADMIN"]),
   async (req, res) => {
-    const updated = {
-      title: req.body.title,
-      description: req.body.description,
-      price: req.body.price,
-      category: req.body.category,
-    };
-
-    if (req.file) {
-      updated.image = req.file.path;
-    } else {
-      updated.image = "";
-    }
-
     try {
+      const updated = {
+        title: req.body.title,
+        description: req.body.description,
+        price: req.body.price,
+        category: req.body.category,
+        image: req.file ? req.file.path : req.body.image || "",
+      };
+
       const product = await Product.findOneAndUpdate(
         { _id: req.params.productId },
         { $set: updated },
         { new: true }
       );
+
       res.status(200).json({ product, message: "Продукт был изменен" });
     } catch (error) {
       errorHandler(res, error);

@@ -6,12 +6,12 @@ class TokenService {
   generate(id, role) {
     const payload = { id, role };
     const accessToken = jwt.sign(payload, config.get("accessSecret"), {
-      expiresIn: 3600,
+      expiresIn: "1d",
     });
     const refreshToken = jwt.sign(payload, config.get("refreshSecret"), {
-      expiresIn: 3600,
+      expiresIn: "1d",
     });
-    return { accessToken, refreshToken, expiresIn: 3600 };
+    return { accessToken, refreshToken, expiresIn: "1d" };
   }
 
   async save(userId, refreshToken) {
