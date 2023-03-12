@@ -1,46 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { checkIsAuth } from '../../../store/features/auth/authSlice';
-import { createProduct } from '../../../store/features/product/productSlice';
+import { useNavigate, useParams } from 'react-router-dom';
+// import { checkIsAuth } from '../../../store/features/auth/authSlice';
+import { editProduct } from '../../../store/features/product/productSlice';
+import axios from '../../../services/axios';
 
-const AddProductPage = () => {
+const EditProductPage = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [image, setImage] = useState('');
-  const isAuth = useSelector(checkIsAuth);
+  const [oldImage, setOldImage] = useState('');
+  const [newImage, setNewImage] = useState('');
   const { loading, status } = useSelector(state => state.product);
+
+  // const isAuth = useSelector(checkIsAuth);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const params = useParams();
+  const { productId } = params;
 
-  if (!isAuth) {
-    navigate('/products');
-  }
+  // if (!isAuth) {
+  //   navigate('/products');
+  // }
 
-  const handleChange = event => {
-    setImage(event.target.files[0]);
+  const getProduct = useCallback(async () => {
+    const { data } = await axios.get(`/products/${productId}`);
+    setTitle(data.title);
+    setDescription(data.description);
+    setPrice(data.price);
+    setOldImage(data.image);
+  }, [productId]);
+
+  useEffect(() => {
+    getProduct();
+  }, []);
+
+  const handleChangeImage = event => {
+    setNewImage(event.target.files[0]);
+    setOldImage('');
   };
 
   const handleClearForm = () => {
     setTitle('');
     setDescription('');
     setPrice('');
-    setImage('');
+    setOldImage('');
+    setNewImage('');
   };
 
-  const handleCreateProduct = () => {
+  const handleEditProduct = async () => {
     try {
-      const newProduct = new FormData();
-      newProduct.append('title', title);
-      newProduct.append('description', description);
-      newProduct.append('price', price);
-      newProduct.append('image', image);
+      const editedProduct = new FormData();
+      editedProduct.append('_id', productId);
+      editedProduct.append('description', description);
+      editedProduct.append('title', title);
+      editedProduct.append('price', price);
+      editedProduct.append('image', newImage ? newImage : oldImage);
 
-      dispatch(createProduct(newProduct));
-
-      handleClearForm();
+      await dispatch(editProduct(editedProduct));
+      navigate(`/products/${productId}`);
     } catch (error) {
       return error;
     }
@@ -61,11 +80,19 @@ const AddProductPage = () => {
               name='image'
               type='file'
               className='hidden'
-              onChange={handleChange}
+              onChange={handleChangeImage}
             />
           </label>
           <div className='flex object-cover py-2'>
-            {image && <img src={URL.createObjectURL(image)} alt={image.name} />}
+            {oldImage && (
+              <img
+                src={`http://localhost:8080/${oldImage}`}
+                alt={oldImage.name}
+              />
+            )}
+            {newImage && (
+              <img src={URL.createObjectURL(newImage)} alt={newImage.name} />
+            )}
           </div>
 
           <label className='text-xs'>
@@ -106,17 +133,17 @@ const AddProductPage = () => {
 
           <div className='flex gap-8 items-center justify-center mt-4'>
             <button
-              onClick={handleCreateProduct}
+              onClick={handleEditProduct}
               className='flex justify-center items-center bg-blue-300 text-xs rounded-sm py-2 px-4'
             >
-              Добавить
+              Изменить
             </button>
 
             <button
               onClick={handleClearForm}
               className='flex justify-center items-center bg-blue-600 text-xs rounded-sm py-2 px-4'
             >
-              Отменить
+              Очистить форму
             </button>
           </div>
         </form>
@@ -125,4 +152,4 @@ const AddProductPage = () => {
   );
 };
 
-export default AddProductPage;
+export default EditProductPage;

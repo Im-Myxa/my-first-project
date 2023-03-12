@@ -8,7 +8,8 @@ import Home from './pages/homePage';
 import LoginForm from './pages/loginForm';
 import OrdersPage from './pages/ordersPage';
 import ProductPage from './pages/productPage';
-import AddProduct from './pages/productPage/addProductPage';
+import AddProductPage from './pages/productPage/addProductPage';
+import EditProductPage from './pages/productPage/editProductPage';
 import ProductsListPage from './pages/productsListPage';
 import RecordsPage from './pages/recordsPage';
 import RegisterForm from './pages/registerForm';
@@ -27,7 +28,8 @@ const routes = () => [
     children: [
       { path: '', element: <ProductsListPage /> },
       { path: ':productId', element: <ProductPage /> },
-      { path: 'addProduct', element: <AddProduct /> }
+      { path: 'addProduct', element: <AddProductPage /> },
+      { path: ':productId/edit', element: <EditProductPage /> }
     ]
   },
   {
