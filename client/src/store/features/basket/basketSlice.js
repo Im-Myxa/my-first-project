@@ -19,13 +19,12 @@ export const getBasket = createAsyncThunk('basket/getBasket', async userId => {
 
 export const addProductInBasket = createAsyncThunk(
   'basket/addProductInBasket',
-  async newProduct => {
+  async addProduct => {
     try {
       const { data } = await axios.post(
-        `/basket/${newProduct.userId}`,
-        newProduct
+        `/basket/${addProduct.userId}`,
+        addProduct
       );
-      console.log(data);
 
       return data;
     } catch (error) {
@@ -36,12 +35,9 @@ export const addProductInBasket = createAsyncThunk(
 
 export const removeProductInBasket = createAsyncThunk(
   'basket/removeProductInBasket',
-  async removedProduct => {
+  async productId => {
     try {
-      const { data } = await axios.delete(
-        `/basket/${removedProduct.userId}`,
-        removedProduct
-      );
+      const { data } = await axios.delete(`/basket/${productId}`);
       return data;
     } catch (error) {
       return error.data;
@@ -76,7 +72,7 @@ export const basketSlice = createSlice({
       state.message = null;
     },
     [getBasket.fulfilled]: (state, action) => {
-      state.products = action.payload;
+      state.products = action.payload.products;
       state.loading = false;
       state.status = 'fulfilled';
       state.message = null;
@@ -93,14 +89,6 @@ export const basketSlice = createSlice({
       state.status = 'pending';
     },
     [addProductInBasket.fulfilled]: (state, action) => {
-      const index = state.products.findIndex(product => {
-        return product.productId === action.payload.productId;
-      });
-      if (index) {
-        state.products[index] = action.payload;
-      } else {
-        state.products.push(action.payload);
-      }
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
@@ -108,7 +96,7 @@ export const basketSlice = createSlice({
     [addProductInBasket.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
-      state.status = 'fulfilled';
+      state.status = 'rejected';
     },
     // Удаление товара
     [removeProductInBasket.pending]: state => {
@@ -117,17 +105,14 @@ export const basketSlice = createSlice({
       state.status = 'pending';
     },
     [removeProductInBasket.fulfilled]: (state, action) => {
-      state.products = state.products.filter(product => {
-        return product.productId !== action.payload.productId;
-      });
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
     },
     [removeProductInBasket.rejected]: (state, action) => {
       state.loading = false;
-      state.message = action.payload.error.message;
-      state.status = 'fulfilled';
+      state.message = action.error.message;
+      state.status = 'rejected';
     },
     // Изменение единицы товара
     [decrementProduct.pending]: state => {
@@ -136,14 +121,6 @@ export const basketSlice = createSlice({
       state.status = 'pending';
     },
     [decrementProduct.fulfilled]: (state, action) => {
-      const index = state.products.findIndex(product => {
-        return product.productId === action.payload.productId;
-      });
-      if (index) {
-        state.products[index] = action.payload;
-      } else {
-        state.products.push(action.payload);
-      }
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
@@ -151,7 +128,7 @@ export const basketSlice = createSlice({
     [decrementProduct.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
-      state.status = 'fulfilled';
+      state.status = 'rejected';
     }
   }
 });

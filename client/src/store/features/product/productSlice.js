@@ -96,7 +96,7 @@ export const productSlice = createSlice({
     [createProduct.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
-      state.status = 'fulfilled';
+      state.status = 'rejected';
     },
     // Удаление товара
     [removeProduct.pending]: state => {
@@ -105,9 +105,6 @@ export const productSlice = createSlice({
       state.status = 'pending';
     },
     [removeProduct.fulfilled]: (state, action) => {
-      state.products = state.products.filter(product => {
-        return product._id !== action.payload._id;
-      });
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
@@ -115,7 +112,7 @@ export const productSlice = createSlice({
     [removeProduct.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
-      state.status = 'fulfilled';
+      state.status = 'rejected';
     },
     // Изменение товара
     [editProduct.pending]: state => {
@@ -135,7 +132,7 @@ export const productSlice = createSlice({
     [editProduct.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
-      state.status = 'fulfilled';
+      state.status = 'rejected';
     }
   }
 });

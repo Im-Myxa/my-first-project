@@ -1,223 +1,209 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  addProductInBasket,
+  decrementProduct,
+  getBasket,
+  removeProductInBasket
+} from '../../store/features/basket/basketSlice';
+import { getUser } from '../../store/features/user/userSlice';
 
-const Basket = () => {
+const BasketPage = () => {
+  const [products, setProducts] = useState('');
+  const [user, setUser] = useState('');
+  const [sumProducts, setSumProducts] = useState('');
+
+  const { userId } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const getUserMe = useCallback(async () => {
+    const { payload } = await dispatch(getUser(userId));
+    setUser(payload);
+  }, [userId]);
+
+  const getProductInBasket = useCallback(async () => {
+    const { payload } = await dispatch(getBasket(userId));
+    setProducts(payload.products);
+
+    const arr = payload.products.map(prod => {
+      return prod.price * prod.quantity;
+    });
+    const sum = arr.reduce((acc, curr) => acc + curr, 0);
+    setSumProducts(sum);
+  }, [userId]);
+
+  useEffect(() => {
+    getUserMe();
+    getProductInBasket();
+  }, []);
+
+  if (!user) return <div>Загрузка...</div>;
+  if (user._id !== userId) {
+    return navigate('/');
+  }
+
+  const handleRemoveProduct = async productId => {
+    try {
+      await dispatch(removeProductInBasket(productId));
+      getProductInBasket();
+    } catch (error) {
+      return error;
+    }
+  };
+
+  const handleIncrement = async productId => {
+    try {
+      const addProduct = {
+        userId,
+        productId
+      };
+      await dispatch(addProductInBasket(addProduct));
+      getProductInBasket();
+    } catch (error) {
+      return error;
+    }
+  };
+  const handleDecrement = async productId => {
+    try {
+      const decrementedProduct = {
+        userId,
+        productId
+      };
+      await dispatch(decrementProduct(decrementedProduct));
+      getProductInBasket();
+    } catch (error) {
+      return error;
+    }
+  };
+
   return (
     <div className='container mx-auto my-16 font-mill text-main'>
       <div className='flex space-x-2'>
         <p className='text-2xl'>Ваша корзина,</p>
-        <p className='text-2xl text-main/[0.5] '>2 товара</p>
+        <p className='text-2xl text-main/[0.5] '>
+          {products ? products.length : ''} товаров
+        </p>
       </div>
       <div className=' mt-4 flex space-x-3'>
         <div className='w-3/4 space-y-4 border border-main/[0.1] p-2'>
-          <div className='flex h-36 border border-main/[0.1] p-2 '>
-            <div className='mx-auto'>
-              <button>
-                <img src='#' alt='#' className='h-32 w-32' />
-              </button>
-            </div>
-            <div className='w-full'>
-              <div className='flex items-center justify-between'>
-                <p className='text-xl font-bold'>Название товара</p>
-                <button>Удалить</button>
-              </div>
-              <div className='relative flex h-full items-center justify-between'>
-                <div className=''>счет</div>
-                <p className=''>1400</p>
-                <p className='text-xl'>1400</p>
-              </div>
-              <div></div>
-            </div>
-          </div>
-          <div className='flex h-36 border border-main/[0.1] p-2 '>
-            <div className='mx-auto'>
-              <button>
-                <img src='#' alt='#' className='h-32 w-32' />
-              </button>
-            </div>
-            <div className='w-full'>
-              <div className='flex items-center justify-between'>
-                <p className='text-xl font-bold'>Название товара</p>
-                <button>Удалить</button>
-              </div>
-              <div className='relative flex h-full items-center justify-between'>
-                <div className=''>счет</div>
-                <p className=''>1400</p>
-                <p className='text-xl'>1400</p>
-              </div>
-              <div></div>
-            </div>
-          </div>
+          {products &&
+            products.map(product => {
+              return (
+                <div
+                  className='relative h-36 border border-main/[0.1] p-2 '
+                  key={product._id}
+                >
+                  <div className='flex '>
+                    <div className='mx-auto'>
+                      <button>
+                        {product.image && (
+                          <img
+                            src={`http://localhost:8080/${product.image}`}
+                            className='h-32 w-32'
+                          />
+                        )}
+                        {!product.image && (
+                          <img
+                            src={
+                              'https://нт.элитсад.рф/assets/components/project/app/img/empty.png'
+                            }
+                            className='h-32 w-32'
+                          />
+                        )}
+                      </button>
+                    </div>
+                    <div className='h-32 w-full'>
+                      <div className='items-center'>
+                        <p className='w-full py-2 text-xl font-bold'>
+                          {product.name}
+                        </p>
+                        <button
+                          onClick={() => handleRemoveProduct(product.productId)}
+                          className='absolute right-0 top-0 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'
+                        >
+                          <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            fill='none'
+                            viewBox='0 0 24 24'
+                            strokeWidth={1.5}
+                            stroke='currentColor'
+                            className='h-6 w-6'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              d='M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0'
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className='flex items-center justify-between'>
+                        <p className=''>{product.price}</p>
+                        <div className='flex items-center space-x-4'>
+                          <button
+                            onClick={() => handleDecrement(product.productId)}
+                            className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1] `}
+                            disabled={product.quantity === 1 && true}
+                          >
+                            <svg
+                              xmlns='http://www.w3.org/2000/svg'
+                              fill='none'
+                              viewBox='0 0 24 24'
+                              strokeWidth={1.5}
+                              stroke='currentColor'
+                              className='h-6 w-6'
+                            >
+                              <path
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                d='M18 12H6'
+                              />
+                            </svg>
+                          </button>
+                          <div className='text-xl'>{product.quantity}</div>
+                          <button
+                            onClick={() => handleIncrement(product.productId)}
+                            className='flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'
+                          >
+                            <svg
+                              xmlns='http://www.w3.org/2000/svg'
+                              fill='none'
+                              viewBox='0 0 24 24'
+                              strokeWidth={1.5}
+                              stroke='currentColor'
+                              className='h-6 w-6'
+                            >
+                              <path
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                d='M12 6v12m6-6H6'
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                        <p className='text-xl'>
+                          {product.price * product.quantity}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
         </div>
-        {/* <div className='w-3/4 border border-main/[0.1] bg-white p-2'>
-          <div className='mt-10 mb-5 flex'>
-            <h3 className='w-2/5 text-xs font-semibold uppercase text-gray-600'>
-              Product Details
-            </h3>
-            <h3 className='w-1/5 text-center text-xs font-semibold uppercase text-gray-600 '>
-              Quantity
-            </h3>
-            <h3 className='w-1/5 text-center text-xs font-semibold uppercase text-gray-600 '>
-              Price
-            </h3>
-            <h3 className='w-1/5 text-center text-xs font-semibold uppercase text-gray-600 '>
-              Total
-            </h3>
-          </div>
-          <div className='-mx-8 flex items-center px-6 py-5 hover:bg-gray-100'>
-            <div className='flex w-2/5'>
-              <div className='w-20'>
-                <img
-                  className='h-24'
-                  src='https://drive.google.com/uc?id=18KkAVkGFvaGNqPy2DIvTqmUH_nk39o3z'
-                  alt=''
-                />
-              </div>
-              <div className='ml-4 flex flex-grow flex-col justify-between'>
-                <span className='text-sm font-bold'>Iphone 6S</span>
-                <span className='text-xs text-red-500'>Apple</span>
-                <a
-                  href='#'
-                  className='text-xs font-semibold text-gray-500 hover:text-red-500'
-                >
-                  Remove
-                </a>
-              </div>
-            </div>
-            <div className='flex w-1/5 justify-center'>
-              <svg
-                className='w-3 fill-current text-gray-600'
-                viewBox='0 0 448 512'
-              >
-                <path d='M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z' />
-              </svg>
-
-              <input
-                className='mx-2 w-8 border text-center'
-                type='text'
-                value='1'
-              />
-
-              <svg
-                className='w-3 fill-current text-gray-600'
-                viewBox='0 0 448 512'
-              >
-                <path d='M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z' />
-              </svg>
-            </div>
-            <span className='w-1/5 text-center text-sm font-semibold'>
-              $400.00
-            </span>
-            <span className='w-1/5 text-center text-sm font-semibold'>
-              $400.00
-            </span>
-          </div>
-
-          <div className='-mx-8 flex items-center px-6 py-5 hover:bg-gray-100'>
-            <div className='flex w-2/5'>
-              <div className='w-20'>
-                <img
-                  className='h-24'
-                  src='https://drive.google.com/uc?id=10ht6a9IR3K2i1j0rHofp9-Oubl1Chraw'
-                  alt=''
-                />
-              </div>
-              <div className='ml-4 flex flex-grow flex-col justify-between'>
-                <span className='text-sm font-bold'>Xiaomi Mi 20000mAh</span>
-                <span className='text-xs text-red-500'>Xiaomi</span>
-                <a
-                  href='#'
-                  className='text-xs font-semibold text-gray-500 hover:text-red-500'
-                >
-                  Remove
-                </a>
-              </div>
-            </div>
-            <div className='flex w-1/5 justify-center'>
-              <svg
-                className='w-3 fill-current text-gray-600'
-                viewBox='0 0 448 512'
-              >
-                <path d='M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z' />
-              </svg>
-
-              <input
-                className='mx-2 w-8 border text-center'
-                type='text'
-                value='1'
-              />
-
-              <svg
-                className='w-3 fill-current text-gray-600'
-                viewBox='0 0 448 512'
-              >
-                <path d='M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z' />
-              </svg>
-            </div>
-            <span className='w-1/5 text-center text-sm font-semibold'>
-              $40.00
-            </span>
-            <span className='w-1/5 text-center text-sm font-semibold'>
-              $40.00
-            </span>
-          </div>
-
-          <div className='-mx-8 flex items-center px-6 py-5 hover:bg-gray-100'>
-            <div className='flex w-2/5'>
-              <div className='w-20'>
-                <img
-                  className='h-24'
-                  src='https://drive.google.com/uc?id=1vXhvO9HoljNolvAXLwtw_qX3WNZ0m75v'
-                  alt=''
-                />
-              </div>
-              <div className='ml-4 flex flex-grow flex-col justify-between'>
-                <span className='text-sm font-bold'>Airpods</span>
-                <span className='text-xs text-red-500'>Apple</span>
-                <a
-                  href='#'
-                  className='text-xs font-semibold text-gray-500 hover:text-red-500'
-                >
-                  Remove
-                </a>
-              </div>
-            </div>
-            <div className='flex w-1/5 justify-center'>
-              <svg
-                className='w-3 fill-current text-gray-600'
-                viewBox='0 0 448 512'
-              >
-                <path d='M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z' />
-              </svg>
-              <input
-                className='mx-2 w-8 border text-center'
-                type='text'
-                value='1'
-              />
-
-              <svg
-                className='w-3 fill-current text-gray-600'
-                viewBox='0 0 448 512'
-              >
-                <path d='M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z' />
-              </svg>
-            </div>
-            <span className='w-1/5 text-center text-sm font-semibold'>
-              $150.00
-            </span>
-            <span className='w-1/5 text-center text-sm font-semibold'>
-              $150.00
-            </span>
-          </div>
-        </div> */}
-        <div className='w-1/4 space-y-4 rounded-lg border border-main/[0.1] p-2'>
+        <div className='h-64 w-1/4 space-y-4 rounded-lg border border-main/[0.1] p-2'>
           <p className='border-b border-main/[0.1] p-2 text-xl'>Ваш заказ</p>
           <div className='flex items-center justify-between p-2'>
-            <p className='text-lg text-main/[0.8]'>Товары (2):</p>
-            <p className='text-lg text-main/[0.8]'>1400 рублей</p>
+            <p className='text-lg text-main/[0.8]'>
+              Товары ({products.length}):
+            </p>
+            <p className='text-lg text-main/[0.8]'>{sumProducts} рублей</p>
           </div>
           <div className='flex items-center justify-between p-2'>
             <p className='text-lg text-main/[0.8]'>Итого:</p>
-            <p className='text-2xl font-bold text-main'>1400 рублей</p>
+            <p className='text-2xl font-bold text-main'>{sumProducts} рублей</p>
           </div>
           <button className='mx-auto w-full rounded-lg border border-main py-2 text-xl text-main hover:bg-main hover:text-white'>
             Оформить заказ
@@ -228,4 +214,4 @@ const Basket = () => {
   );
 };
 
-export default Basket;
+export default BasketPage;
