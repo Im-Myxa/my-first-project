@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { checkIsAuth, logOut } from '../../store/features/auth/authSlice';
+import {
+  checkIsAuth,
+  logOut,
+  tokenIsValid
+} from '../../store/features/auth/authSlice';
 import MenuCloseIcon from './MenuCloseIcon';
 import MenuIcon from './MenuIcon';
 import MobilMenu from './MobilMenu';
@@ -13,11 +17,21 @@ const NavBar = () => {
   const [isMobilMenuOpen, setMobilMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const isAuth = useSelector(checkIsAuth);
-  const { user } = useSelector(state => state.auth);
+  const [user, setUser] = useState('');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const getUserMe = useCallback(async () => {
+    const { payload } = await dispatch(tokenIsValid());
+    setUser(payload.user);
+  }, []);
+
+  useEffect(() => {
+    getUserMe();
+  }, []);
+
+  const isAuth = useSelector(checkIsAuth);
 
   const handleLogOut = () => {
     dispatch(logOut());
@@ -34,7 +48,7 @@ const NavBar = () => {
         <NavItem text='Главная' navigate={'/'} />
         <NavItem text='Услуги' navigate={'/services'} />
         <NavItem text='Товары' navigate={'/products'} />
-        <NavItem text='Корзина' navigate={'/basket/:userId?'} />
+        <NavItem text='Корзина' navigate={`/basket/${user._id}`} />
         {!isAuth && <NavItem text='Войти' navigate={'/auth/signIn'} />}
       </nav>
       {/* button profile */}

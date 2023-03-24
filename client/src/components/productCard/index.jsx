@@ -37,16 +37,16 @@ const ProductCard = ({ product, onShow }) => {
     }
   };
 
-  const handleAddCard = async () => {
+  const handleAddProductInBasket = async () => {
     try {
-      const newProduct = {
+      const addProduct = {
         userId: id,
         productId: product._id,
         name: product.name,
         price: product.price,
         image: product.image
       };
-      await dispatch(addProductInBasket(newProduct));
+      await dispatch(addProductInBasket(addProduct));
     } catch (error) {
       return error;
     }
@@ -117,7 +117,7 @@ const ProductCard = ({ product, onShow }) => {
         ) : (
           <button
             className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'
-            onClick={handleAddCard}
+            onClick={handleAddProductInBasket}
           >
             <svg
               data-v-11c334b8=''

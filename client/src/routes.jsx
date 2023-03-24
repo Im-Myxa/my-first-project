@@ -4,7 +4,7 @@ import AuthLayout from './layouts/authLayout';
 import ProductsLayout from './layouts/productsLayout';
 import ServicesLayout from './layouts/servicesLayout';
 import AdminPage from './pages/adminPage';
-import Basket from './pages/basketPage';
+import BasketPage from './pages/basketPage';
 import Home from './pages/homePage';
 import LoginForm from './pages/loginForm';
 import OrdersPage from './pages/ordersPage';
@@ -43,7 +43,7 @@ const routes = () => [
   },
   {
     path: '/basket/:userId?',
-    element: <Basket />
+    element: <BasketPage />
   },
   {
     path: '/auth',
