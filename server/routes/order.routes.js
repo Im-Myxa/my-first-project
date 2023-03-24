@@ -7,10 +7,9 @@ const auth = require("../middleware/authMiddleware");
 
 router.get("/", role(["ADMIN"]), async (req, res) => {
   try {
-    const orders = await Order.find()
-      .sort({ date: -1 })
-      .skip(+req.query.offset)
-      .limit(+req.query.limit);
+    const orders = await Order.find().sort({ date: -1 });
+    // .skip(+req.query.offset)
+    // .limit(+req.query.limit);
 
     res.status(200).json(orders);
   } catch (error) {
@@ -20,11 +19,11 @@ router.get("/", role(["ADMIN"]), async (req, res) => {
 
 router.get("/:userId", auth, async (req, res) => {
   try {
-    if (req.params.userId === req.user._id) {
-      res.status(200).json(orders);
+    if (req.params.userId === req.user.id) {
       const orders = await Order.find({
         user: req.user.id,
       });
+      res.status(200).json(orders);
     } else {
       return res.status(403).json({ message: "У вас нет доступа!" });
     }
@@ -39,7 +38,7 @@ router.post("/", auth, async (req, res) => {
     const maxOrder = lastOrder ? lastOrder.order : 0;
     const order = await Order.create({
       list: req.body.list,
-      user: req.user._id,
+      user: req.user.id,
       order: maxOrder + 1,
     });
 

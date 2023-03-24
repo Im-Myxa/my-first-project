@@ -15,6 +15,10 @@ const masterSchema = new Schema(
       type: String,
       default: "",
     },
+    specialization: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

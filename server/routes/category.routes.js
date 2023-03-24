@@ -8,13 +8,8 @@ const upload = require("../middleware/upload");
 
 router.get("/:categoryId?", async (req, res) => {
   try {
-    if (req.params.categoryId) {
-      const category = await Category.findById(req.params.categoryId);
-      res.status(200).json(category);
-    } else {
-      const categories = await Category.find();
-      res.status(200).json(categories);
-    }
+    const categories = await Category.find();
+    res.status(200).json(categories);
   } catch (error) {
     errorHandler(res, error);
   }
@@ -22,7 +17,7 @@ router.get("/:categoryId?", async (req, res) => {
 
 router.delete("/:categoryId", roleMiddleware(["ADMIN"]), async (req, res) => {
   try {
-    await Category.remove({
+    const category = await Category.remove({
       _id: req.params.categoryId,
     });
     await Product.remove({
@@ -45,7 +40,7 @@ router.post(
         image: req.file ? req.file.path : "",
       });
       await category.save();
-      res.status(201).json(category);
+      res.status(201).json({ category, message: "Категория создана!" });
     } catch (error) {
       errorHandler(res, error);
     }
@@ -73,7 +68,7 @@ router.patch(
         { $set: updated },
         { new: true }
       );
-      res.status(200).json(category);
+      res.status(200).json({ category, message: "Категория обновлена!" });
     } catch (error) {
       errorHandler(res, error);
     }

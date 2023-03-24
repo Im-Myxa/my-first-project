@@ -11,5 +11,6 @@ router.use("/services", require("./service.routes"));
 router.use("/user", require("./user.routes"));
 router.use("/orders", require("./order.routes"));
 router.use("/records", require("./record.routes"));
+router.use("/basket", require("./basket.routes"));
 
 module.exports = router;

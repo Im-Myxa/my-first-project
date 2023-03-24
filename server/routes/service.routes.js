@@ -5,16 +5,11 @@ const errorHandler = require("../utils/errorHandler");
 const roleMiddleware = require("../middleware/roleMiddleware");
 const upload = require("../middleware/upload");
 
-router.get("/:masterId?/:serviceId?", async (req, res) => {
+router.get("/:serviceId?", async (req, res) => {
   try {
     if (req.params.serviceId) {
       const service = await Service.findById(req.params.serviceId);
       res.status(200).json(service);
-    } else if (req.params.masterId) {
-      const services = await Service.find({
-        master: req.params.masterId,
-      });
-      res.status(200).json(services);
     } else {
       const services = await Service.find();
       res.status(200).json(services);
@@ -38,7 +33,7 @@ router.post(
         image: req.file ? req.file.path : "",
       });
       await service.save();
-      res.status(201).json(service);
+      res.status(201).json({ service, message: "Услуга создана!" });
     } catch (error) {
       errorHandler(res, error);
     }
@@ -50,26 +45,21 @@ router.patch(
   roleMiddleware(["ADMIN"]),
   upload.single("image"),
   async (req, res) => {
-    const updated = {
-      name: req.body.name,
-      description: req.body.description,
-      price: req.body.price,
-      master: req.body.master,
-    };
-
-    if (req.file) {
-      updated.image = req.file.path;
-    } else {
-      updated.image = "";
-    }
-
     try {
+      const updated = {
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,
+        master: req.body.master,
+        image: req.file ? req.file.path : req.body.image || "",
+      };
+
       const service = await Service.findOneAndUpdate(
         { _id: req.params.serviceId },
         { $set: updated },
         { new: true }
       );
-      res.status(200).json(service);
+      res.status(200).json({ service, message: "Услуга изменена!" });
     } catch (error) {
       errorHandler(res, error);
     }

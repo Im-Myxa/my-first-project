@@ -10,7 +10,7 @@ const orderSchema = new Schema(
       type: Number,
       required: true,
     },
-    status: { type: Boolean, default: null },
+    status: { type: Boolean, default: false },
     list: [{ name: String }, { quantity: Number }, { cost: Number }],
     user: {
       type: Schema.Types.ObjectId,

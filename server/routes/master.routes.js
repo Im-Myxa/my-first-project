@@ -25,9 +25,6 @@ router.delete("/:masterId", roleMiddleware(["ADMIN"]), async (req, res) => {
     await Master.remove({
       _id: req.params.masterId,
     });
-    await Service.remove({
-      master: req.params.masterId,
-    });
     res.status(200).json({ message: "Мастер был удален!" });
   } catch (error) {
     errorHandler(res, error);
@@ -43,10 +40,11 @@ router.post(
       const master = await Master.create({
         name: req.body.name,
         description: req.body.description,
+        specialization: req.body.specialization,
         image: req.file ? req.file.path : "",
       });
       await master.save();
-      res.status(201).json(master);
+      res.status(201).json({ master, message: "Мастер создан!" });
     } catch (error) {
       errorHandler(res, error);
     }
@@ -58,20 +56,19 @@ router.patch(
   roleMiddleware(["ADMIN"]),
   upload.single("image"),
   async (req, res) => {
-    const updated = {
-      name: req.body.name,
-      description: req.body.description,
-    };
-    if (req.file) {
-      updated.image = req.file.path ?? "";
-    }
     try {
+      const updated = {
+        name: req.body.name,
+        description: req.body.description,
+        specialization: req.body.specialization,
+        image: req.file ? req.file.path : req.body.image || "",
+      };
       const master = await Master.findOneAndUpdate(
         { _id: req.params.masterId },
         { $set: updated },
         { new: true }
       );
-      res.status(200).json(master);
+      res.status(200).json({ master, message: "Мастер изменен!" });
     } catch (error) {
       errorHandler(res, error);
     }

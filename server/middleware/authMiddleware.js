@@ -11,7 +11,7 @@ module.exports = function (req, res, next) {
     if (!token) {
       return res.status(401).json({ message: "Пользователь не авторизован" });
     }
-    const decodedData = tokenService.validateAccess(token);
+    const decodedData = tokenService.validateRefresh(token);
     if (!decodedData) {
       return res.status(401).json({ message: '"Пользователь не авторизован"' });
     }
