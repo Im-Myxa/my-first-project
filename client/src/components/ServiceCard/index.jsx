@@ -1,52 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router-dom';
 import { NavLink } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
-  getAllProduct,
-  removeProduct
-} from '../../store/features/product/productSlice';
-import { addProductInBasket } from '../../store/features/basket/basketSlice';
-import { tokenIsValid } from '../../store/features/auth/authSlice';
+  getAllServices,
+  removeService
+} from '../../store/features/service/serviceSlice';
 
-const ProductCard = ({ product, onShow }) => {
+const ServiceCard = ({ service, onShow }) => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
-  const [id, setId] = useState('');
-
-  const getUserId = async () => {
-    try {
-      const data = await dispatch(tokenIsValid());
-      setId(data.payload.user._id);
-    } catch (error) {
-      return error;
-    }
-  };
-
-  useEffect(() => {
-    getUserId();
-  }, []);
 
   const handleRemoveProduct = async () => {
     try {
-      await dispatch(removeProduct(product._id));
-      dispatch(getAllProduct());
-    } catch (error) {
-      return error;
-    }
-  };
-
-  const handleAddCard = async () => {
-    try {
-      const newProduct = {
-        userId: id,
-        productId: product._id,
-        name: product.name,
-        price: product.price,
-        image: product.image
-      };
-      await dispatch(addProductInBasket(newProduct));
+      await dispatch(removeService(service._id));
+      dispatch(getAllServices());
     } catch (error) {
       return error;
     }
@@ -54,10 +23,10 @@ const ProductCard = ({ product, onShow }) => {
 
   return (
     <div className='overflow-screen group rounded-lg text-xl text-main hover:shadow-lg'>
-      <NavLink to={`/products/${product._id}`}>
-        {product.image ? (
+      <NavLink to={`/products/${service._id}`}>
+        {service.image ? (
           <img
-            src={`http://localhost:8080/${product.image}`}
+            src={`http://localhost:8080/${service.image}`}
             className='flex h-[304px] w-full flex-shrink-0 rounded-lg object-cover group-hover:opacity-75 '
           />
         ) : (
@@ -67,17 +36,17 @@ const ProductCard = ({ product, onShow }) => {
           />
         )}
 
-        <h1 className='my-2 w-full px-2'>{product.name}</h1>
+        <h1 className='my-2 w-full px-2'>{service.name}</h1>
       </NavLink>
       <div className='bottom-0 my-2 flex items-center justify-between px-2'>
-        <NavLink to={`/products/${product._id}`}>
-          <p>{product.price} ₽</p>
+        <NavLink to={`/products/${service._id}`}>
+          <p>{service.price} ₽</p>
         </NavLink>
         {pathname === '/adminPage' ? (
           <div className='flex'>
             <button
               className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'
-              onClick={() => onShow({ status: true, _id: product._id })}
+              onClick={() => onShow({ status: true, _id: service._id })}
             >
               <svg
                 xmlns='http://www.w3.org/2000/svg'
@@ -115,10 +84,7 @@ const ProductCard = ({ product, onShow }) => {
             </button>
           </div>
         ) : (
-          <button
-            className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'
-            onClick={handleAddCard}
-          >
+          <button className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'>
             <svg
               data-v-11c334b8=''
               width='24'
@@ -144,9 +110,9 @@ const ProductCard = ({ product, onShow }) => {
   );
 };
 
-ProductCard.propTypes = {
-  product: PropTypes.object,
+ServiceCard.propTypes = {
+  service: PropTypes.object,
   onShow: PropTypes.func
 };
 
-export default ProductCard;
+export default ServiceCard;

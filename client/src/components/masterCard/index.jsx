@@ -1,83 +1,54 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router-dom';
 import { NavLink } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
-  getAllProduct,
-  removeProduct
-} from '../../store/features/product/productSlice';
-import { addProductInBasket } from '../../store/features/basket/basketSlice';
-import { tokenIsValid } from '../../store/features/auth/authSlice';
+  getAllMaster,
+  removeMaster
+} from '../../store/features/master/masterSlice';
 
-const ProductCard = ({ product, onShow }) => {
+const MasterCard = ({ master, onShow }) => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
-  const [id, setId] = useState('');
 
-  const getUserId = async () => {
+  const handleRemoveMaster = async () => {
     try {
-      const data = await dispatch(tokenIsValid());
-      setId(data.payload.user._id);
-    } catch (error) {
-      return error;
-    }
-  };
-
-  useEffect(() => {
-    getUserId();
-  }, []);
-
-  const handleRemoveProduct = async () => {
-    try {
-      await dispatch(removeProduct(product._id));
-      dispatch(getAllProduct());
-    } catch (error) {
-      return error;
-    }
-  };
-
-  const handleAddCard = async () => {
-    try {
-      const newProduct = {
-        userId: id,
-        productId: product._id,
-        name: product.name,
-        price: product.price,
-        image: product.image
-      };
-      await dispatch(addProductInBasket(newProduct));
+      await dispatch(removeMaster(master._id));
+      dispatch(getAllMaster());
     } catch (error) {
       return error;
     }
   };
 
   return (
-    <div className='overflow-screen group rounded-lg text-xl text-main hover:shadow-lg'>
-      <NavLink to={`/products/${product._id}`}>
-        {product.image ? (
-          <img
-            src={`http://localhost:8080/${product.image}`}
-            className='flex h-[304px] w-full flex-shrink-0 rounded-lg object-cover group-hover:opacity-75 '
-          />
-        ) : (
-          <img
-            src={`https://нт.элитсад.рф/assets/components/project/app/img/empty.png`}
-            className='flex h-[304px] w-full flex-shrink-0 rounded-lg object-cover group-hover:opacity-75 '
-          />
-        )}
-
-        <h1 className='my-2 w-full px-2'>{product.name}</h1>
+    <div className='overflow-screen group relative flex rounded-lg border border-main/[0.5] text-xl text-main'>
+      <NavLink to={`/products/${master._id}`}>
+        <div className='my-2 ml-2 hover:shadow-lg group-hover:opacity-75'>
+          {master.image ? (
+            <img
+              src={`http://localhost:8080/${master.image}`}
+              className='flex max-h-[400px] flex-shrink-0 rounded-lg object-cover'
+            />
+          ) : (
+            <img
+              src={`https://нт.элитсад.рф/assets/components/project/app/img/empty.png`}
+              className=''
+            />
+          )}
+        </div>
       </NavLink>
-      <div className='bottom-0 my-2 flex items-center justify-between px-2'>
-        <NavLink to={`/products/${product._id}`}>
-          <p>{product.price} ₽</p>
+      <div className='m-2 w-full items-center'>
+        <NavLink to={`/products/${master._id}`}>
+          <h2 className='w-full'>{master.name}</h2>
+          <p>{master.specialization}</p>
+          <p>{master.description}</p>
         </NavLink>
         {pathname === '/adminPage' ? (
-          <div className='flex'>
+          <div className='absolute bottom-2 right-2 flex'>
             <button
               className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'
-              onClick={() => onShow({ status: true, _id: product._id })}
+              onClick={() => onShow({ status: true, _id: master._id })}
             >
               <svg
                 xmlns='http://www.w3.org/2000/svg'
@@ -96,7 +67,7 @@ const ProductCard = ({ product, onShow }) => {
             </button>
             <button
               className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'
-              onClick={handleRemoveProduct}
+              onClick={handleRemoveMaster}
             >
               <svg
                 xmlns='http://www.w3.org/2000/svg'
@@ -115,10 +86,7 @@ const ProductCard = ({ product, onShow }) => {
             </button>
           </div>
         ) : (
-          <button
-            className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'
-            onClick={handleAddCard}
-          >
+          <button className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'>
             <svg
               data-v-11c334b8=''
               width='24'
@@ -144,9 +112,9 @@ const ProductCard = ({ product, onShow }) => {
   );
 };
 
-ProductCard.propTypes = {
-  product: PropTypes.object,
+MasterCard.propTypes = {
+  master: PropTypes.object,
   onShow: PropTypes.func
 };
 
-export default ProductCard;
+export default MasterCard;

@@ -4,8 +4,9 @@ import axios from '../../../services/axios';
 const initialState = {
   user: null,
   status: null,
-  isLoading: false,
-  token: null
+  loading: false,
+  token: null,
+  message: null
 };
 
 export const registerUser = createAsyncThunk(
@@ -47,8 +48,8 @@ export const loginUser = createAsyncThunk(
 
 export const tokenIsValid = createAsyncThunk('auth/tokenIsValid', async () => {
   try {
-    const response = await axios.get('/auth/me');
-    return response.data;
+    const { data } = await axios.get('/auth/me');
+    return data;
   } catch (error) {
     return error;
   }
@@ -61,52 +62,65 @@ const authSlice = createSlice({
     logOut: state => {
       state.user = null;
       state.status = null;
-      state.isLoading = false;
+      state.loading = false;
       state.token = null;
+      state.message = null;
     }
   },
   extraReducers: {
+    // Регистрация пользователя
     [registerUser.pending]: state => {
-      state.isLoading = true;
-      state.status = null;
+      state.loading = true;
+      state.status = 'pending';
+      state.message = null;
     },
     [registerUser.fulfilled]: (state, action) => {
-      state.isLoading = false;
-      state.status = action.payload.message;
+      state.loading = false;
+      state.status = 'fulfilled';
+      state.message = action.payload.message;
       state.user = action.payload.user;
       state.token = action.payload.token;
     },
     [registerUser.rejected]: (state, action) => {
-      state.status = action.error.message;
-      state.isLoading = false;
+      state.status = 'rejected';
+      state.message = action.error.message;
+      state.loading = false;
     },
+    //Логин пользователя
     [loginUser.pending]: state => {
-      state.isLoading = true;
-      state.status = null;
+      state.loading = true;
+      state.status = 'pending';
+      state.message = null;
     },
     [loginUser.fulfilled]: (state, action) => {
-      state.isLoading = false;
-      state.status = action.payload.message;
+      state.loading = false;
+      state.status = 'fulfilled';
+      state.message = action.payload.message;
       state.user = action.payload.user;
       state.token = action.payload.token;
     },
     [loginUser.rejected]: (state, action) => {
-      state.status = action.error.message;
-      state.isLoading = false;
+      state.status = 'rejected';
+      state.message = action.error.message;
+      state.loading = false;
     },
+    // Проверка на валидность токена
     [tokenIsValid.pending]: state => {
-      state.isLoading = true;
-      state.status = null;
+      state.loading = true;
+      state.status = 'pending';
+      state.message = null;
     },
     [tokenIsValid.fulfilled]: (state, action) => {
-      state.isLoading = false;
-      state.status = null;
+      state.loading = false;
+      state.status = 'fulfilled';
+      state.message = null;
       state.user = action.payload.user;
       state.token = action.payload.token;
     },
     [tokenIsValid.rejected]: (state, action) => {
-      state.status = action.error.message;
-      state.isLoading = false;
+      state.status = 'rejected';
+      state.message = action.error.message;
+      state.loading = false;
     }
   }
 });
