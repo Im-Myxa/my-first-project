@@ -5,19 +5,11 @@ const role = require("../middleware/roleMiddleware");
 const auth = require("../middleware/authMiddleware");
 const errorHandler = require("../utils/errorHandler");
 
-router.get("/", role(["ADMIN"]), async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (error) {
-    errorHandler(res, error);
-  }
-});
 router.get("/:userId", auth, async (req, res) => {
   try {
     const { userId } = req.params;
 
-    if (userId === req.user._id) {
+    if (userId === req.user.id) {
       const user = await User.findById(userId);
       res.json(user);
     } else {
@@ -30,15 +22,22 @@ router.get("/:userId", auth, async (req, res) => {
 
 router.patch("/:userId", auth, async (req, res) => {
   try {
-    const { userId } = req.params;
+    console.log("req.params", req.params);
+    console.log("req.body", req.body);
 
-    if (userId === req.user._id) {
-      const updatedUser = await User.findByIdAndUpdate(userId, req.body, {
-        new: true,
-      });
-      res.json(updatedUser);
+    if (req.params.userId === req.user.id) {
+      const updatedUser = await User.findByIdAndUpdate(
+        { _id: req.params.userId },
+        { $set: req.body },
+        {
+          new: true,
+        }
+      );
+      res
+        .status(200)
+        .json({ updatedUser, message: "Изменения прошли успешно!" });
     } else {
-      res.json({ message: "Пользователь не авторизован" });
+      res.json({ message: "Пользователь не авторизован!" });
     }
   } catch (error) {
     errorHandler(res, error);

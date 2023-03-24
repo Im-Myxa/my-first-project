@@ -10,7 +10,9 @@ module.exports = function (roles) {
       const token = (req.headers.authorization || "").replace(/Bearer\s?/, "");
 
       if (!token) {
-        return res.status(400).json({ message: "Пользователь не авторизован" });
+        return res
+          .status(400)
+          .json({ message: "Пользователь не авторизован!!" });
       }
 
       const { role: userRoles } = tokenService.validateRefresh(token);

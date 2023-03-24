@@ -11,11 +11,6 @@ router.get("/:productId?", async (req, res) => {
     if (req.params.productId) {
       const product = await Product.findById(req.params.productId);
       res.status(200).json(product);
-      // } else if (req.params.categoryId) {
-      //   const products = await Product.find({
-      //     category: req.params.categoryId,
-      //   });
-      //   res.status(200).json(products);
     } else {
       const products = await Product.find();
       res.status(200).json(products);
@@ -32,7 +27,7 @@ router.post(
   async (req, res) => {
     try {
       const product = await Product.create({
-        title: req.body.title,
+        name: req.body.name,
         description: req.body.description,
         price: req.body.price,
         category: req.body.category,
@@ -54,7 +49,7 @@ router.patch(
   async (req, res) => {
     try {
       const updated = {
-        title: req.body.title,
+        name: req.body.name,
         description: req.body.description,
         price: req.body.price,
         category: req.body.category,

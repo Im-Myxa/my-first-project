@@ -4,7 +4,11 @@ const userSchema = new Schema(
   {
     name: {
       type: String,
-      required: true,
+      default: "",
+    },
+    surname: {
+      type: String,
+      default: "",
     },
     email: {
       type: String,
@@ -15,12 +19,9 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    image: {
-      type: String,
-      default: "",
-    },
+    mobile: { type: String, default: "" },
     role: [{ type: String, ref: "Role" }],
-    age: { type: Number, default: null },
+    age: { type: Date, default: "" },
   },
   { timestamps: true }
 );
