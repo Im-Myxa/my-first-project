@@ -2,17 +2,17 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../../services/axios';
 
 const initialState = {
-  products: [],
+  services: [],
   loading: false,
   status: null,
   message: null
 };
 
-export const getAllProduct = createAsyncThunk(
-  'product/getAllProduct',
+export const getAllServices = createAsyncThunk(
+  'service/getAllServices',
   async () => {
     try {
-      const { data } = await axios.get('/products');
+      const { data } = await axios.get('/services');
       return data;
     } catch (error) {
       return error.data;
@@ -20,11 +20,11 @@ export const getAllProduct = createAsyncThunk(
   }
 );
 
-export const createProduct = createAsyncThunk(
-  'product/createProduct',
-  async newProduct => {
+export const createService = createAsyncThunk(
+  'service/createService',
+  async newService => {
     try {
-      const { data } = await axios.post('/products', newProduct);
+      const { data } = await axios.post('/services', newService);
       return data;
     } catch (error) {
       return error.data;
@@ -32,11 +32,11 @@ export const createProduct = createAsyncThunk(
   }
 );
 
-export const removeProduct = createAsyncThunk(
-  'product/removeProduct',
-  async productId => {
+export const removeService = createAsyncThunk(
+  'service/removeService',
+  async serviceId => {
     try {
-      const { data } = await axios.delete(`/products/${productId}`, productId);
+      const { data } = await axios.delete(`/services/${serviceId}`, serviceId);
       return data;
     } catch (error) {
       return error.data;
@@ -44,13 +44,13 @@ export const removeProduct = createAsyncThunk(
   }
 );
 
-export const editProduct = createAsyncThunk(
-  'product/editProduct',
-  async editedProduct => {
+export const editService = createAsyncThunk(
+  'service/editService',
+  async editedService => {
     try {
       const { data } = await axios.patch(
-        `/products/${editedProduct.get('_id')}`,
-        editedProduct
+        `/services/${editedService.get('_id')}`,
+        editedService
       );
       return data;
     } catch (error) {
@@ -59,80 +59,80 @@ export const editProduct = createAsyncThunk(
   }
 );
 
-export const productSlice = createSlice({
-  name: 'product',
+export const serviceSlice = createSlice({
+  name: 'service',
   initialState,
   reducers: {},
   extraReducers: {
-    //Получение всех товаров
-    [getAllProduct.pending]: state => {
+    //Получение всех услуг
+    [getAllServices.pending]: state => {
       state.loading = true;
       state.status = 'pending';
       state.message = null;
     },
-    [getAllProduct.fulfilled]: (state, action) => {
-      state.products = action.payload;
+    [getAllServices.fulfilled]: (state, action) => {
+      state.services = action.payload;
       state.loading = false;
       state.status = 'fulfilled';
       state.message = null;
     },
-    [getAllProduct.rejected]: (state, action) => {
+    [getAllServices.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
       state.status = 'rejected';
     },
-    // Создание товара
-    [createProduct.pending]: state => {
+    // Создание услуги
+    [createService.pending]: state => {
       state.loading = true;
       state.message = null;
       state.status = 'pending';
     },
-    [createProduct.fulfilled]: (state, action) => {
-      state.products.push(action.payload);
+    [createService.fulfilled]: (state, action) => {
+      state.services.push(action.payload);
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
     },
-    [createProduct.rejected]: (state, action) => {
+    [createService.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
       state.status = 'fulfilled';
     },
-    // Удаление товара
-    [removeProduct.pending]: state => {
+    // Удаление услуги
+    [removeService.pending]: state => {
       state.loading = true;
       state.message = null;
       state.status = 'pending';
     },
-    [removeProduct.fulfilled]: (state, action) => {
-      state.products = state.products.filter(product => {
-        return product._id !== action.payload._id;
+    [removeService.fulfilled]: (state, action) => {
+      state.services = state.services.filter(service => {
+        return service._id !== action.payload._id;
       });
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
     },
-    [removeProduct.rejected]: (state, action) => {
+    [removeService.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
       state.status = 'fulfilled';
     },
-    // Изменение товара
-    [editProduct.pending]: state => {
+    // Изменение услуги
+    [editService.pending]: state => {
       state.loading = true;
       state.message = null;
       state.status = 'pending';
     },
-    [editProduct.fulfilled]: (state, action) => {
-      const index = state.products.findIndex(product => {
-        return product._id === action.payload._id;
+    [editService.fulfilled]: (state, action) => {
+      const index = state.services.findIndex(service => {
+        return service._id === action.payload._id;
       });
-      state.products[index] = action.payload;
+      state.services[index] = action.payload;
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
     },
-    [editProduct.rejected]: (state, action) => {
+    [editService.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
       state.status = 'fulfilled';
@@ -140,6 +140,6 @@ export const productSlice = createSlice({
   }
 });
 
-export const messageProduct = state => state.product.message;
+export const messageService = state => state.service.message;
 
-export default productSlice.reducer;
+export default serviceSlice.reducer;

@@ -3,13 +3,12 @@ import { Navigate } from 'react-router-dom';
 import AuthLayout from './layouts/authLayout';
 import ProductsLayout from './layouts/productsLayout';
 import ServicesLayout from './layouts/servicesLayout';
+import AdminPage from './pages/adminPage';
 import Basket from './pages/basketPage';
 import Home from './pages/homePage';
 import LoginForm from './pages/loginForm';
 import OrdersPage from './pages/ordersPage';
 import ProductPage from './pages/productPage';
-import AddProductPage from './pages/productPage/addProductPage';
-import EditProductPage from './pages/productPage/editProductPage';
 import ProductsListPage from './pages/productsListPage';
 import RecordsPage from './pages/recordsPage';
 import RegisterForm from './pages/registerForm';
@@ -23,13 +22,15 @@ const routes = () => [
     element: <Home />
   },
   {
+    path: '/adminPage',
+    element: <AdminPage />
+  },
+  {
     path: '/products',
     element: <ProductsLayout />,
     children: [
       { path: '', element: <ProductsListPage /> },
-      { path: ':productId', element: <ProductPage /> },
-      { path: 'addProduct', element: <AddProductPage /> },
-      { path: ':productId/edit', element: <EditProductPage /> }
+      { path: ':productId', element: <ProductPage /> }
     ]
   },
   {

@@ -2,17 +2,17 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../../services/axios';
 
 const initialState = {
-  products: [],
+  masters: [],
   loading: false,
   status: null,
   message: null
 };
 
-export const getAllProduct = createAsyncThunk(
-  'product/getAllProduct',
+export const getAllMaster = createAsyncThunk(
+  'master/getAllMaster',
   async () => {
     try {
-      const { data } = await axios.get('/products');
+      const { data } = await axios.get('/masters');
       return data;
     } catch (error) {
       return error.data;
@@ -20,11 +20,11 @@ export const getAllProduct = createAsyncThunk(
   }
 );
 
-export const createProduct = createAsyncThunk(
-  'product/createProduct',
-  async newProduct => {
+export const createMaster = createAsyncThunk(
+  'master/createMaster',
+  async newMaster => {
     try {
-      const { data } = await axios.post('/products', newProduct);
+      const { data } = await axios.post('/masters', newMaster);
       return data;
     } catch (error) {
       return error.data;
@@ -32,11 +32,11 @@ export const createProduct = createAsyncThunk(
   }
 );
 
-export const removeProduct = createAsyncThunk(
-  'product/removeProduct',
-  async productId => {
+export const removeMaster = createAsyncThunk(
+  'master/removeMaster',
+  async masterId => {
     try {
-      const { data } = await axios.delete(`/products/${productId}`, productId);
+      const { data } = await axios.delete(`/masters/${masterId}`, masterId);
       return data;
     } catch (error) {
       return error.data;
@@ -44,13 +44,13 @@ export const removeProduct = createAsyncThunk(
   }
 );
 
-export const editProduct = createAsyncThunk(
-  'product/editProduct',
-  async editedProduct => {
+export const editMaster = createAsyncThunk(
+  'master/editMaster',
+  async editedMaster => {
     try {
       const { data } = await axios.patch(
-        `/products/${editedProduct.get('_id')}`,
-        editedProduct
+        `/masters/${editedMaster.get('_id')}`,
+        editedMaster
       );
       return data;
     } catch (error) {
@@ -59,80 +59,80 @@ export const editProduct = createAsyncThunk(
   }
 );
 
-export const productSlice = createSlice({
-  name: 'product',
+export const masterSlice = createSlice({
+  name: 'master',
   initialState,
   reducers: {},
   extraReducers: {
-    //Получение всех товаров
-    [getAllProduct.pending]: state => {
+    //Получение всех мастеров
+    [getAllMaster.pending]: state => {
       state.loading = true;
       state.status = 'pending';
       state.message = null;
     },
-    [getAllProduct.fulfilled]: (state, action) => {
-      state.products = action.payload;
+    [getAllMaster.fulfilled]: (state, action) => {
+      state.masters = action.payload;
       state.loading = false;
       state.status = 'fulfilled';
       state.message = null;
     },
-    [getAllProduct.rejected]: (state, action) => {
+    [getAllMaster.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
       state.status = 'rejected';
     },
-    // Создание товара
-    [createProduct.pending]: state => {
+    // Создание мастера
+    [createMaster.pending]: state => {
       state.loading = true;
       state.message = null;
       state.status = 'pending';
     },
-    [createProduct.fulfilled]: (state, action) => {
-      state.products.push(action.payload);
+    [createMaster.fulfilled]: (state, action) => {
+      state.masters.push(action.payload);
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
     },
-    [createProduct.rejected]: (state, action) => {
+    [createMaster.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
       state.status = 'fulfilled';
     },
-    // Удаление товара
-    [removeProduct.pending]: state => {
+    // Удаление мастера
+    [removeMaster.pending]: state => {
       state.loading = true;
       state.message = null;
       state.status = 'pending';
     },
-    [removeProduct.fulfilled]: (state, action) => {
-      state.products = state.products.filter(product => {
-        return product._id !== action.payload._id;
+    [removeMaster.fulfilled]: (state, action) => {
+      state.masters = state.masters.filter(master => {
+        return master._id !== action.payload._id;
       });
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
     },
-    [removeProduct.rejected]: (state, action) => {
+    [removeMaster.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
       state.status = 'fulfilled';
     },
-    // Изменение товара
-    [editProduct.pending]: state => {
+    // Изменение мастера
+    [editMaster.pending]: state => {
       state.loading = true;
       state.message = null;
       state.status = 'pending';
     },
-    [editProduct.fulfilled]: (state, action) => {
-      const index = state.products.findIndex(product => {
-        return product._id === action.payload._id;
+    [editMaster.fulfilled]: (state, action) => {
+      const index = state.masters.findIndex(master => {
+        return master._id === action.payload._id;
       });
-      state.products[index] = action.payload;
+      state.masters[index] = action.payload;
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
     },
-    [editProduct.rejected]: (state, action) => {
+    [editMaster.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.payload.error.message;
       state.status = 'fulfilled';
@@ -140,6 +140,6 @@ export const productSlice = createSlice({
   }
 });
 
-export const messageProduct = state => state.product.message;
+export const messageMaster = state => state.master.message;
 
-export default productSlice.reducer;
+export default masterSlice.reducer;

@@ -12,21 +12,46 @@ import { tokenIsValid } from './store/features/auth/authSlice';
 function App() {
   const element = useRoutes(routes());
   const dispatch = useDispatch();
-  const { message } = useSelector(state => state.product);
+  const msgCategory = useSelector(state => state.category.message);
+  const msgProduct = useSelector(state => state.product.message);
+  const msgMaster = useSelector(state => state.master.message);
+  const msgService = useSelector(state => state.service.message);
+  const msgAuth = useSelector(state => state.auth.message);
+  const msgUser = useSelector(state => state.user.message);
 
   useEffect(() => {
     dispatch(tokenIsValid());
   }, []);
 
   useEffect(() => {
-    toast.info(message);
-  }, [message]);
+    toast.info(msgProduct);
+  }, [msgProduct]);
+
+  useEffect(() => {
+    toast.info(msgCategory);
+  }, [msgCategory]);
+
+  useEffect(() => {
+    toast.info(msgMaster);
+  }, [msgMaster]);
+
+  useEffect(() => {
+    toast.info(msgService);
+  }, [msgService]);
+
+  useEffect(() => {
+    toast.info(msgAuth);
+  }, [msgAuth]);
+
+  useEffect(() => {
+    toast.info(msgUser);
+  }, [msgUser]);
 
   return (
     <Wrapper>
       <>
         <NavBar />
-        <div className='mt-6'>{element}</div>
+        <div>{element}</div>
         <ToastContainer position='bottom-right' />
       </>
     </Wrapper>

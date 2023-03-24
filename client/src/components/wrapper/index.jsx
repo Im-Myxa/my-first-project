@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 const Wrapper = ({ children }) => {
   return (
-    <div className='container mx-auto py-4 px-2 min-h-screen'>{children}</div>
+    <div className='container mx-auto min-h-screen py-4 px-10'>{children}</div>
   );
 };
 

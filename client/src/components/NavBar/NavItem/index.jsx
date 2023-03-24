@@ -6,7 +6,7 @@ const NavItem = ({ text, navigate, onLogOut }) => {
   return (
     <NavLink to={navigate}>
       <div className='cursor-pointer'>
-        <button onClick={onLogOut} className='text-gray-500 hover:text-black '>
+        <button onClick={onLogOut} className='text-title hover:text-black '>
           {text}
         </button>
       </div>
