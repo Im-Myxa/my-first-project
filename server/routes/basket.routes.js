@@ -19,6 +19,7 @@ router.post("/:userId", auth, async (req, res) => {
       let itemIndex = basket.products.findIndex(
         (p) => p.productId == productId
       );
+      console.log(itemIndex);
 
       if (itemIndex > -1) {
         const productItem = basket.products[itemIndex];
