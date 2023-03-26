@@ -1,128 +1,136 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import {
   checkIsAuth,
+  // checkIsAdmin,
+  // checkIsAuth,
   logOut,
   tokenIsValid
 } from '../../store/features/auth/authSlice';
+import BasketIcons from './BasketIcons';
+import CloseProfileIcon from './closeProfileIcon';
+import LoginIcon from './LoginIcon';
+import LogoutIcon from './LogOutIcon';
 import MenuCloseIcon from './MenuCloseIcon';
 import MenuIcon from './MenuIcon';
 import MobilMenu from './MobilMenu';
 import NavItem from './NavItem';
 import NavLogo from './NavLogo';
+import ProfileIcons from './ProfileIcons';
 
 const NavBar = () => {
   const [isMobilMenuOpen, setMobilMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const [user, setUser] = useState('');
+  const [user, setUser] = useState({});
+  const [isAdmin, setIsAdmin] = useState(false);
+  const isAuth = useSelector(checkIsAuth);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const getUserMe = useCallback(async () => {
     const { payload } = await dispatch(tokenIsValid());
-    setUser(payload.user);
+    const { user } = payload;
+    setUser(user);
+    if (user.role.includes('ADMIN')) setIsAdmin(true);
   }, []);
 
   useEffect(() => {
     getUserMe();
-  }, []);
-
-  const isAuth = useSelector(checkIsAuth);
+  }, [isAuth]);
 
   const handleLogOut = () => {
     dispatch(logOut());
+    getUserMe();
     window.localStorage.removeItem('token');
-    toast.info('Вы вышли из системы');
-    navigate('/');
+    navigate('/products');
   };
 
   return (
-    <header className='relative flex items-center'>
+    <header className='relative flex h-28 items-center bg-gradient-to-r from-[#2C3E50] to-[#000000] font-roboto'>
       <NavLogo />
-      <nav className='ml-auto hidden space-x-10 md:flex'>
-        <NavItem text='Админ панель' navigate={'/adminPage'} />
-        <NavItem text='Главная' navigate={'/'} />
-        <NavItem text='Услуги' navigate={'/services'} />
-        <NavItem text='Товары' navigate={'/products'} />
-        <NavItem text='Корзина' navigate={`/basket/${user._id}`} />
-        {!isAuth && <NavItem text='Войти' navigate={'/auth/signIn'} />}
-      </nav>
-      {/* button profile */}
-      {isAuth && (
-        <div>
-          <button
-            type='button'
-            onClick={() => setProfileOpen(!profileOpen)}
-            className='h-9 w-9 overflow-hidden rounded-full'
-          >
-            <img
-              src='https://upload.wikimedia.org/wikipedia/commons/b/bc/Unknown_person.jpg'
-              alt='plchldr.co'
-            />
-          </button>
-
-          {profileOpen && (
-            <div className='absolute right-2 mt-1 w-48 divide-y divide-gray-200 rounded-md border border-gray-200 bg-white shadow-md'>
-              <div className='flex items-center space-x-2 p-2'>
-                <img
-                  src='https://upload.wikimedia.org/wikipedia/commons/b/bc/Unknown_person.jpg'
-                  alt='plchldr.co'
-                  className='h-9 w-9 rounded-full'
-                />
-                <div className='font-medium'>{user.name}</div>
-              </div>
-
-              <div className='flex flex-col space-y-3 p-2'>
-                <NavLink
-                  to={`/user/${user._id}`}
-                  className='transition hover:text-blue-600'
-                >
-                  <button
-                    type='button'
-                    onClick={() => setProfileOpen(!profileOpen)}
-                  >
-                    Профиль
-                  </button>
-                </NavLink>
-              </div>
-
-              <div className='p-2'>
-                <button
-                  className='flex items-center space-x-2 transition hover:text-blue-600'
-                  onClick={handleLogOut}
-                >
-                  <svg
-                    className='h-4 w-4'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                    xmlns='http://www.w3.org/2000/svg'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth='2'
-                      d='M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1'
-                    ></path>
-                  </svg>
-                  <div>Выйти</div>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-      <div
-        className='z-30 ml-auto flex cursor-pointer md:hidden'
-        onClick={() => setMobilMenuOpen(!isMobilMenuOpen)}
-      >
-        {isMobilMenuOpen ? <MenuCloseIcon /> : <MenuIcon />}
+      <div className='mx-auto md:hidden'>
+        <ul className='flex gap-6'>
+          {isAdmin && <NavItem text='Админ панель' navigate={'/adminPage'} />}
+          {/* <NavItem text='Главная' navigate={'/'} /> */}
+          {/* <NavItem text='Услуги' navigate={'/services'} /> */}
+          <NavItem text='Товары' navigate={'/products'} />
+        </ul>
       </div>
-      <MobilMenu isOpen={isMobilMenuOpen} />
+      <div className='absolute right-4 flex items-center gap-2'>
+        {!user ? (
+          <div onClick={() => setMobilMenuOpen(false)}>
+            <NavLink to={'/auth/signIn'}>
+              <LoginIcon />
+            </NavLink>
+          </div>
+        ) : (
+          <div className='flex gap-6' onClick={() => setMobilMenuOpen(false)}>
+            <button
+              type='button'
+              onClick={() => setProfileOpen(!profileOpen)}
+              className='flex flex-shrink-0 items-center justify-center space-x-2 overflow-hidden rounded-full p-2 hover:bg-white/[0.5]'
+            >
+              <ProfileIcons />
+              <p className='font-medium text-white xs:hidden'>{user.name}</p>
+            </button>
+            {profileOpen && (
+              <div className='absolute top-10 right-[72px] mt-1 w-48 divide-y divide-gray-200 rounded-md border border-gray-200 bg-white shadow-md'>
+                <div className='flex items-center justify-between space-x-2 p-2'>
+                  <div className='flex'>
+                    <ProfileIcons profileOpen={profileOpen} />
+                    <div className='font-medium'>{user.name}</div>
+                  </div>
+                  <div onClick={() => setProfileOpen(false)}>
+                    <CloseProfileIcon />
+                  </div>
+                </div>
+
+                <div
+                  className='flex flex-col space-y-3 p-2 hover:bg-main/[0.1]'
+                  onClick={() => setProfileOpen(!profileOpen)}
+                >
+                  <NavLink to={`/user/${user._id}`}>
+                    <button
+                      type='button'
+                      className='cursor-pointer hover:text-opacity-50'
+                    >
+                      Профиль
+                    </button>
+                  </NavLink>
+                </div>
+
+                <div className='p-2 hover:bg-main/[0.1]'>
+                  <button
+                    className='flex cursor-pointer items-center space-x-2 hover:text-opacity-50 '
+                    onClick={handleLogOut}
+                  >
+                    <LogoutIcon />
+                    <div>Выйти</div>
+                  </button>
+                </div>
+              </div>
+            )}
+            <NavLink to={`/basket/${user._id}`}>
+              <BasketIcons />
+            </NavLink>
+          </div>
+        )}
+        <div
+          className='hidden md:block'
+          onClick={() => setMobilMenuOpen(!isMobilMenuOpen)}
+        >
+          {isMobilMenuOpen ? <MenuCloseIcon /> : <MenuIcon />}
+        </div>
+        <MobilMenu
+          isOpen={isMobilMenuOpen}
+          onMobileMenuClose={() => setMobilMenuOpen(false)}
+          onLogout={handleLogOut}
+          isAdmin={isAdmin}
+        />
+      </div>
     </header>
   );
 };

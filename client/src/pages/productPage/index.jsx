@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import axios from '../../services/axios';
 
 const ProductPage = () => {
   const [product, setProduct] = useState(null);
   const params = useParams();
-  const { loading, status } = useSelector(state => state.product);
 
   const getProduct = useCallback(async () => {
     const { data } = await axios.get(`/products/${params.productId}`);
@@ -24,49 +22,32 @@ const ProductPage = () => {
   }
 
   return (
-    <>
-      {loading && status === 'pending' ? (
-        <div className='content-center justify-center'>Загрузка...</div>
-      ) : (
-        <div className='bg-white'>
-          <div className='pt-6'>
-            <div className='mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8'>
-              <div className='aspect-w-3 aspect-h-4 hidden overflow-hidden rounded-lg lg:block'>
-                <img
-                  src={`http://localhost:8080/${product.image}`}
-                  alt='Картинка товара'
-                  className='h-full w-full object-cover object-center'
-                />
-              </div>
-            </div>
+    <div className='mx-auto my-10 space-y-4 bg-white text-main lg:w-[1000px] md:w-[750px] sm:w-[380px]'>
+      <div className='mx-auto flex gap-2 sm:grid'>
+        <img
+          src={`http://localhost:8080/${product.image}`}
+          alt='Картинка товара'
+          className='mx-auto h-96 w-[288px] object-cover'
+        />
 
-            <div className='mt-10'>
-              <div className='lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8'>
-                <div>
-                  <h1 className='text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl'>
-                    {product.name}
-                  </h1>
-                  <p className='text-3xl tracking-tight text-gray-900'>
-                    {product.price}
-                  </p>
-                </div>
-                <div className='space-y-6'>
-                  <p className='text-base text-gray-900'>
-                    {product.description}
-                  </p>
-                </div>
-              </div>
-              <button
-                type='submit'
-                className='mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
-              >
-                Добавить в корзину
-              </button>
-            </div>
+        <div className='mx-auto items-center justify-center space-y-4'>
+          <div className='space-y-4'>
+            <h1 className='text-2xl font-bold'>{product.name}</h1>
+            <p className='text-xl '>Цена - {product.price} ₽</p>
+          </div>
+          <div className='space-y-2'>
+            <p className='text-xl font-bold'>Описание</p>
+            <p className=''>{product.description}</p>
           </div>
         </div>
-      )}
-    </>
+      </div>
+      <button
+        type='button'
+        className='mx-auto w-[288px] rounded-lg border border-main p-2 hover:bg-main hover:text-white'
+      >
+        Добавить в корзину
+      </button>
+    </div>
   );
 };
 

@@ -11,10 +11,14 @@ const orderSchema = new Schema(
       required: true,
     },
     status: { type: Boolean, default: false },
-    list: [{ name: String }, { quantity: Number }, { cost: Number }],
+    list: [{ name: String, quantity: Number, cost: Number }],
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
+    },
+    costOrder: {
+      type: Number,
+      required: true,
     },
   },
   { timestamps: true }

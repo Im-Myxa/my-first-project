@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 // } from 'react-icons/gr';
 import CategoryMenu from './categoryMenu';
 import MasterMenu from './masterMenu';
+import GetAllOrders from './orderMenu';
 import ProductMenu from './productMenu';
 import ServiceMenu from './serviceMenu';
 
@@ -84,6 +85,7 @@ const AdminPage = () => {
       {show.menu === 'category' && <CategoryMenu />}
       {show.menu === 'service' && <ServiceMenu />}
       {show.menu === 'master' && <MasterMenu />}
+      {show.menu === 'order' && <GetAllOrders />}
     </div>
   );
 };

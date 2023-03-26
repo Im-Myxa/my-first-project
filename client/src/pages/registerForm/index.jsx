@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { checkIsAuth, registerUser } from '../../store/features/auth/authSlice';
-import { toast } from 'react-toastify';
+import {
+  checkIsAuth,
+  registerUser,
+  tokenIsValid
+} from '../../store/features/auth/authSlice';
 
 const RegisterForm = () => {
   const [name, setName] = useState('');
@@ -14,34 +17,32 @@ const RegisterForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (status) {
-      toast.info(status);
-    }
     if (isAuth) navigate('/');
   }, [status, isAuth, navigate]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     try {
-      dispatch(registerUser({ name, email, password }));
+      await dispatch(registerUser({ name, email, password }));
+      await dispatch(tokenIsValid());
       setName('');
       setEmail('');
       setPassword('');
     } catch (error) {
-      console.log(error);
+      return error;
     }
   };
 
   return (
-    <div className='min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12'>
-      <div className='relative py-3 sm:max-w-xl sm:mx-auto'>
-        <div className='absolute inset-0 bg-gradient-to-r from-blue-300 to-blue-600 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl'></div>
-        <div className='relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20'>
-          <div className='max-w-md mx-auto'>
+    <div className='flex min-h-screen flex-col justify-center bg-gray-100 py-6 sm:py-12'>
+      <div className='relative py-3 sm:mx-auto sm:max-w-xl'>
+        <div className='absolute inset-0 -skew-y-6 transform bg-gradient-to-r from-[#2C3E50] to-[#000000] shadow-lg sm:-rotate-6 sm:skew-y-0 sm:rounded-3xl'></div>
+        <div className='relative bg-white px-4 py-10 shadow-lg sm:rounded-3xl sm:p-20'>
+          <div className='mx-auto max-w-md'>
             <div>
               <h1 className='text-2xl font-semibold'>Регистрация</h1>
             </div>
             <div className='divide-y divide-gray-200'>
-              <div className='py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7'>
+              <div className='space-y-4 py-8 text-base leading-6 text-gray-700 sm:text-lg sm:leading-7'>
                 <div className='relative'>
                   <input
                     autoComplete='off'
@@ -50,12 +51,12 @@ const RegisterForm = () => {
                     type='text'
                     value={name}
                     onChange={event => setName(event.target.value)}
-                    className='peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600'
+                    className='focus:borer-rose-600 peer h-10 w-full border-b-2 border-gray-300 text-gray-900 placeholder-transparent focus:outline-none'
                     placeholder='Имя'
                   />
                   <label
                     htmlFor='name'
-                    className='absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm'
+                    className='peer-placeholder-shown:text-gray-440 absolute left-0 -top-3.5 text-sm text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-base peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-gray-600'
                   >
                     Имя
                   </label>
@@ -68,12 +69,12 @@ const RegisterForm = () => {
                     type='text'
                     value={email}
                     onChange={event => setEmail(event.target.value)}
-                    className='peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600'
+                    className='focus:borer-rose-600 peer h-10 w-full border-b-2 border-gray-300 text-gray-900 placeholder-transparent focus:outline-none'
                     placeholder='Email'
                   />
                   <label
                     htmlFor='email'
-                    className='absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm'
+                    className='peer-placeholder-shown:text-gray-440 absolute left-0 -top-3.5 text-sm text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-base peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-gray-600'
                   >
                     Email
                   </label>
@@ -86,24 +87,26 @@ const RegisterForm = () => {
                     type='password'
                     value={password}
                     onChange={event => setPassword(event.target.value)}
-                    className='peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600'
+                    className='focus:borer-rose-600 peer h-10 w-full border-b-2 border-gray-300 text-gray-900 placeholder-transparent focus:outline-none'
                     placeholder='Пароль'
                   />
                   <label
                     htmlFor='password'
-                    className='absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm'
+                    className='peer-placeholder-shown:text-gray-440 absolute left-0 -top-3.5 text-sm text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-base peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-gray-600'
                   >
                     Пароль
                   </label>
                 </div>
-                <div className='flex relative justify-between'>
+                <div className='relative flex justify-between'>
                   <button
-                    className='bg-blue-500 text-white rounded-md px-2 py-1'
+                    className='rounded-md border border-main bg-white px-2 py-1 text-main hover:bg-main hover:text-white'
                     onClick={handleSubmit}
                   >
                     Войти
                   </button>
-                  <NavLink to='/auth/signIn'>Есть аккаунт?</NavLink>
+                  <NavLink to='/auth/signIn'>
+                    <p className='hover:text-main'>Есть аккаунт?</p>
+                  </NavLink>
                 </div>
               </div>
             </div>

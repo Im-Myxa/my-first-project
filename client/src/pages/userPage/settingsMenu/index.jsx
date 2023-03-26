@@ -47,9 +47,9 @@ const SettingsMenu = () => {
   };
 
   return (
-    <div className='relative h-[520px] w-full rounded-md border border-main/[0.2]'>
-      <form onSubmit={e => e.preventDefault()} className='space-y-4'>
-        <div className='flex space-x-4'>
+    <div className='h-[420px] w-full rounded-md border border-main/[0.2]'>
+      <form onSubmit={e => e.preventDefault()} className='space-y-2'>
+        <div className='space-y-2 px-2'>
           <div>
             <label className='mb-2'>Имя</label>
             <input
@@ -57,7 +57,7 @@ const SettingsMenu = () => {
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder='Имя'
-              className='mb-2 w-full rounded-lg border bg-main/[0.1] outline-none placeholder:text-gray-700'
+              className='mb-2 w-full rounded-lg border border-main px-2 py-1 outline-none placeholder:text-gray-700'
             />
           </div>
 
@@ -68,11 +68,11 @@ const SettingsMenu = () => {
               value={surname}
               onChange={e => setSurname(e.target.value)}
               placeholder='Фамилия'
-              className='mb-2 w-full rounded-lg border bg-main/[0.1] outline-none placeholder:text-gray-700'
+              className='mb-2 w-full rounded-lg border border-main px-2 py-1 outline-none placeholder:text-gray-700'
             />
           </div>
         </div>
-        <div className='flex space-x-4'>
+        <div className='space-y-2 px-2'>
           <div>
             <label className='mb-2'>Email</label>
             <input
@@ -80,7 +80,7 @@ const SettingsMenu = () => {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder='Email'
-              className='mb-2 w-full rounded-lg border bg-main/[0.1] outline-none placeholder:text-gray-700'
+              className='mb-2 w-full rounded-lg border border-main px-2 py-1 outline-none placeholder:text-gray-700'
             />
           </div>
           <div>
@@ -90,25 +90,25 @@ const SettingsMenu = () => {
               value={mobile}
               onChange={e => setMobile(e.target.value)}
               placeholder='Телефон'
-              className='mb-2 w-full rounded-lg border bg-main/[0.1] outline-none placeholder:text-gray-700'
+              className='mb-2 w-full rounded-lg border border-main px-2 py-1 outline-none placeholder:text-gray-700'
             />
           </div>
         </div>
-        <div>
+        <div className='flex items-center gap-4 px-2'>
           <label className='mb-2'>Дата рождения</label>
           <input
             type='date'
             value={age}
             onChange={e => setAge(e.target.value)}
             placeholder='Дата рождения'
-            className='mb-2 w-full rounded-lg border bg-main/[0.1] outline-none placeholder:text-gray-700'
+            className='mb-2 w-[200px] rounded-lg border border-main px-2 py-1 outline-none placeholder:text-gray-700'
           />
         </div>
       </form>
 
       <button
         onClick={handleEditUser}
-        className='absolute bottom-2 right-2 rounded-full border border-main p-2 hover:bg-main hover:text-white'
+        className='ml-[420px] mt-7 rounded-full border border-main p-2 hover:bg-main hover:text-white sm:ml-[276px]'
       >
         Сохранить
       </button>
