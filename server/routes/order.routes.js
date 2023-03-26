@@ -34,17 +34,24 @@ router.get("/:userId", auth, async (req, res) => {
 
 router.post("/", auth, async (req, res) => {
   try {
-    const lastOrder = await Order.find().sort({ date: -1 });
-    const maxOrder = lastOrder ? lastOrder.order : 0;
-    const order = await Order.create({
-      list: req.body.list,
-      user: req.user.id,
-      order: maxOrder + 1,
-    });
+    if (req.body.userId === req.user.id) {
+      const lastOrder = await Order.find().sort({ date: -1 });
 
-    await order.save();
+      let maxOrder = lastOrder[0] ? lastOrder[0].order : 0;
 
-    res.status(201).json(order);
+      const newOrder = await Order.create({
+        list: req.body.products,
+        user: req.user.id,
+        order: maxOrder + 1,
+        costOrder: req.body.sumOrder,
+      });
+
+      await newOrder.save();
+
+      res.status(201).json({ newOrder, message: "Заказ создан!" });
+    } else {
+      return res.status(403).json({ message: "У вас нет доступа!" });
+    }
   } catch (error) {
     errorHandler(res, error);
   }

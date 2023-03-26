@@ -22,30 +22,36 @@ const UserPage = () => {
   }, []);
 
   if (user && user._id !== userId) {
-    return navigate('/');
+    return navigate('/products');
   }
 
   if (!user) return <div>Загрузка...</div>;
 
   return (
-    <div className='mt-16'>
+    <div className='mx-auto mt-16 lg:w-[700px] sm:w-96'>
       <div className='w-full border-b border-main/[0.2] py-2'>
         <div className='text-2xl'>{user.name}</div>
       </div>
-      <div className='my-6 flex'>
-        <div className='w-1/4 space-y-3'>
+      <div className='my-6 lg:flex sm:grid sm:space-y-4'>
+        <div className='w-1/4 gap-3 sm:flex sm:w-full sm:justify-center sm:gap-8'>
           <div>
-            <button onClick={() => setShow({ menu: 'settings' })}>
+            <button
+              onClick={() => setShow({ menu: 'settings' })}
+              className='rounded-lg p-2 hover:bg-main/[0.2]'
+            >
               Настройки
             </button>
           </div>
           <div>
-            <button onClick={() => setShow({ menu: 'order' })}>
+            <button
+              onClick={() => setShow({ menu: 'order' })}
+              className='rounded-lg p-2 hover:bg-main/[0.2]'
+            >
               Мои заказы
             </button>
           </div>
         </div>
-        <div className='w-3/4'>
+        <div className='mx-auto w-3/4 sm:w-96'>
           {show.menu === 'settings' && <SettingsMenu />}
           {show.menu === 'order' && <UserOrderMenu />}
         </div>

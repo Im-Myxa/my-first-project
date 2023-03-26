@@ -3,7 +3,7 @@ import { useRoutes } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import Wrapper from './components/wrapper';
+// import Wrapper from './components/wrapper';
 import NavBar from '../src/components/NavBar';
 import routes from './routes';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,7 +16,6 @@ function App() {
   const msgProduct = useSelector(state => state.product.message);
   const msgMaster = useSelector(state => state.master.message);
   const msgService = useSelector(state => state.service.message);
-  const msgAuth = useSelector(state => state.auth.message);
   const msgUser = useSelector(state => state.user.message);
 
   useEffect(() => {
@@ -40,21 +39,17 @@ function App() {
   }, [msgService]);
 
   useEffect(() => {
-    toast.info(msgAuth);
-  }, [msgAuth]);
-
-  useEffect(() => {
     toast.info(msgUser);
   }, [msgUser]);
 
   return (
-    <Wrapper>
-      <>
-        <NavBar />
-        <div>{element}</div>
-        <ToastContainer position='bottom-right' />
-      </>
-    </Wrapper>
+    <>
+      <NavBar />
+      {/* <Wrapper> */}
+      <div>{element}</div>
+      <ToastContainer position='bottom-right' />
+      {/* </Wrapper> */}
+    </>
   );
 }
 

@@ -11,6 +11,7 @@ const initialState = {
 export const getBasket = createAsyncThunk('basket/getBasket', async userId => {
   try {
     const { data } = await axios.get(`/basket/${userId}`);
+
     return data;
   } catch (error) {
     return error.data;
@@ -38,6 +39,18 @@ export const removeProductInBasket = createAsyncThunk(
   async productId => {
     try {
       const { data } = await axios.delete(`/basket/${productId}`);
+      return data;
+    } catch (error) {
+      return error.data;
+    }
+  }
+);
+
+export const removeBasket = createAsyncThunk(
+  'basket/removeBasket',
+  async () => {
+    try {
+      const { data } = await axios.delete(`/basket`);
       return data;
     } catch (error) {
       return error.data;
@@ -98,7 +111,7 @@ export const basketSlice = createSlice({
       state.message = action.payload.error.message;
       state.status = 'rejected';
     },
-    // Удаление товара
+    // Удаление товара из корзины
     [removeProductInBasket.pending]: state => {
       state.loading = true;
       state.message = null;
@@ -110,6 +123,22 @@ export const basketSlice = createSlice({
       state.status = 'fulfilled';
     },
     [removeProductInBasket.rejected]: (state, action) => {
+      state.loading = false;
+      state.message = action.error.message;
+      state.status = 'rejected';
+    },
+    // Удаление корзины
+    [removeBasket.pending]: state => {
+      state.loading = true;
+      state.message = null;
+      state.status = 'pending';
+    },
+    [removeBasket.fulfilled]: (state, action) => {
+      state.loading = false;
+      state.message = action.payload.message;
+      state.status = 'fulfilled';
+    },
+    [removeBasket.rejected]: (state, action) => {
       state.loading = false;
       state.message = action.error.message;
       state.status = 'rejected';

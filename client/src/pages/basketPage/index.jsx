@@ -5,14 +5,18 @@ import {
   addProductInBasket,
   decrementProduct,
   getBasket,
+  removeBasket,
   removeProductInBasket
 } from '../../store/features/basket/basketSlice';
+import { createOrder } from '../../store/features/order/orderSlice';
 import { getUser } from '../../store/features/user/userSlice';
+import { formatQuantity } from '../../utils/formatQuantity';
 
 const BasketPage = () => {
   const [products, setProducts] = useState('');
   const [user, setUser] = useState('');
   const [sumProducts, setSumProducts] = useState('');
+  const [lengthList, setLengthList] = useState(0);
 
   const { userId } = useParams();
   const dispatch = useDispatch();
@@ -27,11 +31,18 @@ const BasketPage = () => {
     const { payload } = await dispatch(getBasket(userId));
     setProducts(payload.products);
 
-    const arr = payload.products.map(prod => {
-      return prod.price * prod.quantity;
-    });
-    const sum = arr.reduce((acc, curr) => acc + curr, 0);
-    setSumProducts(sum);
+    const products = payload.products;
+    if (products) {
+      setLengthList(products.length);
+      const arr = products.map(prod => {
+        return prod.price * prod.quantity;
+      });
+      const sum = arr.reduce((acc, curr) => acc + curr, 0);
+      setSumProducts(sum);
+    } else {
+      setLengthList(0);
+      setSumProducts(0);
+    }
   }, [userId]);
 
   useEffect(() => {
@@ -41,7 +52,7 @@ const BasketPage = () => {
 
   if (!user) return <div>Загрузка...</div>;
   if (user._id !== userId) {
-    return navigate('/');
+    return navigate('/products');
   }
 
   const handleRemoveProduct = async productId => {
@@ -78,21 +89,45 @@ const BasketPage = () => {
     }
   };
 
+  const handleCreateOrder = async () => {
+    const listProducts = products.map(prod => {
+      return {
+        name: prod.name,
+        quantity: prod.quantity,
+        cost: prod.quantity * prod.price
+      };
+    });
+
+    try {
+      const createdOrder = {
+        userId,
+        products: listProducts,
+        sumOrder: sumProducts
+      };
+
+      await dispatch(createOrder(createdOrder));
+      await dispatch(removeBasket());
+      getProductInBasket();
+    } catch (error) {
+      return error;
+    }
+  };
+
   return (
-    <div className='container mx-auto my-16 font-mill text-main'>
+    <div className='mx-auto my-16 font-roboto text-main lg:w-[1000px] md:w-[750px] sm:w-[470px] xs:w-[400px]'>
       <div className='flex space-x-2'>
-        <p className='text-2xl'>Ваша корзина,</p>
-        <p className='text-2xl text-main/[0.5] '>
-          {products ? products.length : ''} товаров
+        <p className='text-2xl'>
+          Ваша корзина, {lengthList} {formatQuantity(lengthList)}
         </p>
+        <p className='text-2xl text-main/[0.5] '></p>
       </div>
-      <div className=' mt-4 flex space-x-3'>
-        <div className='w-3/4 space-y-4 border border-main/[0.1] p-2'>
+      <div className=' mt-4 flex gap-4 md:grid'>
+        <div className='w-3/4 gap-4 border border-main/[0.1] p-2 md:w-full sm:w-full xs:w-full'>
           {products &&
             products.map(product => {
               return (
                 <div
-                  className='relative h-36 border border-main/[0.1] p-2 '
+                  className='h-36 border border-main/[0.1] p-2'
                   key={product._id}
                 >
                   <div className='flex '>
@@ -114,14 +149,14 @@ const BasketPage = () => {
                         )}
                       </button>
                     </div>
-                    <div className='h-32 w-full'>
-                      <div className='items-center'>
-                        <p className='w-full py-2 text-xl font-bold'>
+                    <div className='h-32 w-full pl-1'>
+                      <div className='flex items-center justify-between'>
+                        <p className='w-full py-2 text-xl font-bold sm:text-base'>
                           {product.name}
                         </p>
                         <button
                           onClick={() => handleRemoveProduct(product.productId)}
-                          className='absolute right-0 top-0 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'
+                          className='mt-[-20px] flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'
                         >
                           <svg
                             xmlns='http://www.w3.org/2000/svg'
@@ -139,12 +174,12 @@ const BasketPage = () => {
                           </svg>
                         </button>
                       </div>
-                      <div className='flex items-center justify-between'>
-                        <p className=''>{product.price}</p>
-                        <div className='flex items-center space-x-4'>
+                      <div className='mt-10 flex items-center justify-between sm:mt-6'>
+                        <p className='sm:text-base'>{product.price} ₽</p>
+                        <div className='flex items-center gap-4 sm:text-base'>
                           <button
                             onClick={() => handleDecrement(product.productId)}
-                            className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1] `}
+                            className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]`}
                             disabled={product.quantity === 1 && true}
                           >
                             <svg
@@ -162,7 +197,9 @@ const BasketPage = () => {
                               />
                             </svg>
                           </button>
-                          <div className='text-xl'>{product.quantity}</div>
+                          <div className='text-xl sm:text-base'>
+                            {product.quantity}
+                          </div>
                           <button
                             onClick={() => handleIncrement(product.productId)}
                             className='flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full hover:bg-main/[0.1]'
@@ -183,8 +220,8 @@ const BasketPage = () => {
                             </svg>
                           </button>
                         </div>
-                        <p className='text-xl'>
-                          {product.price * product.quantity}
+                        <p className='text-xl sm:text-base'>
+                          {product.price * product.quantity} ₽
                         </p>
                       </div>
                     </div>
@@ -193,19 +230,20 @@ const BasketPage = () => {
               );
             })}
         </div>
-        <div className='h-64 w-1/4 space-y-4 rounded-lg border border-main/[0.1] p-2'>
+        <div className='h-64 w-1/4 space-y-4 rounded-lg border border-main/[0.1] p-2 md:w-[300px]'>
           <p className='border-b border-main/[0.1] p-2 text-xl'>Ваш заказ</p>
           <div className='flex items-center justify-between p-2'>
-            <p className='text-lg text-main/[0.8]'>
-              Товары ({products.length}):
-            </p>
-            <p className='text-lg text-main/[0.8]'>{sumProducts} рублей</p>
+            <p className='text-lg text-main/[0.8]'>Товары ({lengthList}):</p>
+            <p className='text-lg text-main/[0.8]'>{sumProducts} ₽</p>
           </div>
           <div className='flex items-center justify-between p-2'>
             <p className='text-lg text-main/[0.8]'>Итого:</p>
-            <p className='text-2xl font-bold text-main'>{sumProducts} рублей</p>
+            <p className='text-2xl font-bold text-main'>{sumProducts} ₽</p>
           </div>
-          <button className='mx-auto w-full rounded-lg border border-main py-2 text-xl text-main hover:bg-main hover:text-white'>
+          <button
+            onClick={handleCreateOrder}
+            className='mx-auto w-full rounded-lg border border-main py-2 text-xl text-main hover:bg-main hover:text-white'
+          >
             Оформить заказ
           </button>
         </div>
