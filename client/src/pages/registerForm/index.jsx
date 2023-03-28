@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   registerUser,
-  tokenIsValid
+  // tokenIsValid
 } from '../../store/features/auth/authSlice';
 
 const RegisterForm = () => {
@@ -21,7 +21,7 @@ const RegisterForm = () => {
   const handleSubmit = async () => {
     try {
       await dispatch(registerUser({ name, email, password }));
-      await dispatch(tokenIsValid());
+      // await dispatch(tokenIsValid());
       setName('');
       setEmail('');
       setPassword('');

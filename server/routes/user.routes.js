@@ -6,10 +6,12 @@ const auth = require("../middleware/authMiddleware");
 const errorHandler = require("../utils/errorHandler");
 
 router.get("/:userId", auth, async (req, res) => {
+  const id = req.user.id._id? req.user.id._id : req.user.id
+
   try {
     const { userId } = req.params;
 
-    if (userId === req.user.id) {
+    if (userId === id) {
       const user = await User.findById(userId);
       res.json(user);
     } else {
@@ -21,8 +23,11 @@ router.get("/:userId", auth, async (req, res) => {
 });
 
 router.patch("/:userId", auth, async (req, res) => {
+  const id = req.user.id._id? req.user.id._id : req.user.id
   try {
-    if (req.params.userId === req.user.id) {
+    const { userId } = req.params;
+
+    if (userId === id) {
       const updatedUser = await User.findByIdAndUpdate(
         { _id: req.params.userId },
         { $set: req.body },

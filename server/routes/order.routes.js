@@ -16,8 +16,10 @@ router.get("/", role(["ADMIN"]), async (req, res) => {
 });
 
 router.get("/:userId", auth, async (req, res) => {
+  const id = req.user.id._id? req.user.id._id : req.user.id
+  
   try {
-    if (req.params.userId === req.user.id) {
+    if (req.params.userId === id) {
       const orders = await Order.find({
         user: req.user.id,
       });
@@ -31,8 +33,10 @@ router.get("/:userId", auth, async (req, res) => {
 });
 
 router.post("/", auth, async (req, res) => {
+  console.log('req.user',req.user)
+  const id = req.user.id._id? req.user.id._id : req.user.id
   try {
-    if (req.body.userId === req.user.id) {
+    if (req.body.userId === id) {
       const lastOrder = await Order.find().sort({ date: -1 });
 
       let maxOrder = lastOrder[0] ? lastOrder[0].order : 0;

@@ -5,10 +5,10 @@ const auth = require("../middleware/authMiddleware");
 const Basket = require("../models/Basket");
 
 router.post("/:userId", auth, async (req, res) => {
-  const { userId } = req.params;
   const { productId, name, quantity, price, image } = req.body;
+  const { userId } = req.params;
 
-  if (userId !== req.user.id) {
+  if (userId === req.user) {
     return res.status(403).json({ message: "У вас нет доступа!" });
   }
 
@@ -60,7 +60,7 @@ router.post("/:userId", auth, async (req, res) => {
 router.get("/:userId", auth, async (req, res) => {
   const { userId } = req.params;
 
-  if (userId !== req.user.id) {
+    if (userId === req.user) {
     return res.status(403).json({ message: "У вас нет доступа!" });
   }
   try {
@@ -74,10 +74,10 @@ router.get("/:userId", auth, async (req, res) => {
 });
 
 router.patch("/:userId", auth, async (req, res) => {
-  const { userId } = req.params;
   const { productId } = req.body;
+  const { userId } = req.params;
 
-  if (userId !== req.user.id) {
+  if (userId === req.user) {
     return res.status(403).json({ message: "У вас нет доступа!" });
   }
 
@@ -106,10 +106,10 @@ router.patch("/:userId", auth, async (req, res) => {
 
 router.delete("/:productId?", auth, async (req, res) => {
   const { productId } = req.params;
-  const { id } = req.user;
+
 
   try {
-    const basket = await Basket.findOne({ user: id });
+    const basket = await Basket.findOne({ user: req.user.id });
 
     if (!basket) return res.status(200).json({ message: "Корзина пустая!" });
 
