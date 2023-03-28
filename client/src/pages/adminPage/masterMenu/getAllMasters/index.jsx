@@ -13,8 +13,6 @@ const GetAllMasters = ({ onShow }) => {
 
   const { masters, loading, status } = useSelector(state => state.master);
 
-  console.log('masters', masters);
-
   if (!masters) {
     return (
       <div className='items-center justify-center bg-white py-10 text-2xl text-main'>

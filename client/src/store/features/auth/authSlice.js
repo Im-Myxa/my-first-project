@@ -6,7 +6,9 @@ const initialState = {
   status: null,
   loading: false,
   token: null,
-  message: null
+  message: null,
+  isAdmin: false,
+  isAuth: false
 };
 
 export const registerUser = createAsyncThunk(
@@ -65,6 +67,8 @@ const authSlice = createSlice({
       state.loading = false;
       state.token = null;
       state.message = null;
+      state.isAdmin = false;
+      state.isAuth = false;
     }
   },
   extraReducers: {
@@ -80,11 +84,14 @@ const authSlice = createSlice({
       state.message = action.payload.message;
       state.user = action.payload.user;
       state.token = action.payload.token;
+      state.isAdmin = action.payload.user.role.includes('ADMIN');
+      state.isAuth = true;
     },
     [registerUser.rejected]: (state, action) => {
       state.status = 'rejected';
       state.message = action.error.message;
       state.loading = false;
+      state.message = null;
     },
     //Логин пользователя
     [loginUser.pending]: state => {
@@ -98,11 +105,14 @@ const authSlice = createSlice({
       state.message = action.payload.message;
       state.user = action.payload.user;
       state.token = action.payload.token;
+      state.isAdmin = action.payload.user.role.includes('ADMIN');
+      state.isAuth = true;
     },
     [loginUser.rejected]: (state, action) => {
       state.status = 'rejected';
       state.message = action.error.message;
       state.loading = false;
+      state.message = null;
     },
     // Проверка на валидность токена
     [tokenIsValid.pending]: state => {
@@ -116,17 +126,17 @@ const authSlice = createSlice({
       state.message = null;
       state.user = action.payload.user;
       state.token = action.payload.token;
+      state.isAdmin = action.payload.user.role.includes('ADMIN');
+      state.isAuth = true;
     },
     [tokenIsValid.rejected]: (state, action) => {
       state.status = 'rejected';
       state.message = action.error.message;
       state.loading = false;
+      state.message = null;
     }
   }
 });
-
-export const checkIsAuth = state => Boolean(state.auth.token);
-export const checkIsAdmin = state => state.auth.user;
 
 export const { logOut } = authSlice.actions;
 

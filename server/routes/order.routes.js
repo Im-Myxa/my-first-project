@@ -8,8 +8,6 @@ const auth = require("../middleware/authMiddleware");
 router.get("/", role(["ADMIN"]), async (req, res) => {
   try {
     const orders = await Order.find().sort({ date: -1 });
-    // .skip(+req.query.offset)
-    // .limit(+req.query.limit);
 
     res.status(200).json(orders);
   } catch (error) {

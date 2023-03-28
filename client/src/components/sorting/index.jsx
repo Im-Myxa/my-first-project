@@ -30,7 +30,7 @@ const Sorting = ({ sortType, onSortType }) => {
         </button>
       </div>
       {show && (
-        <div className='absolute right-0 mt-1 w-48 divide-y divide-gray-200 rounded-md border border-gray-200 bg-white shadow-md'>
+        <div className='mt-1 w-48 divide-y divide-gray-200 rounded-md border border-gray-200 bg-white shadow-md'>
           {sortArr.map(item => {
             return (
               <div

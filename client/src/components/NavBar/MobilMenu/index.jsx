@@ -1,9 +1,7 @@
 /* eslint-disable indent */
 import React from 'react';
 import PropTypes from 'prop-types';
-// import NavItem from '../NavItem';
 import { useSelector } from 'react-redux';
-import { checkIsAuth } from '../../../store/features/auth/authSlice';
 import LogoutIcon from '../LogOutIcon';
 import { NavLink } from 'react-router-dom';
 
@@ -13,7 +11,8 @@ const MobilMenu = ({
   isAdmin,
   onMobileMenuClose
 }) => {
-  const isAuth = useSelector(checkIsAuth);
+  const { isAuth } = useSelector(state => state.auth);
+
   return (
     <>
       {isOpen && (
