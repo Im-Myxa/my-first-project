@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
+import { tokenIsValid } from '../../store/features/auth/authSlice';
 import {
   addProductInBasket,
   decrementProduct,
@@ -9,23 +10,18 @@ import {
   removeProductInBasket
 } from '../../store/features/basket/basketSlice';
 import { createOrder } from '../../store/features/order/orderSlice';
-import { getUser } from '../../store/features/user/userSlice';
 import { formatQuantity } from '../../utils/formatQuantity';
 
 const BasketPage = () => {
   const [products, setProducts] = useState('');
-  const [user, setUser] = useState('');
   const [sumProducts, setSumProducts] = useState('');
   const [lengthList, setLengthList] = useState(0);
+
+  const { user } = useSelector(state => state.auth);
 
   const { userId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const getUserMe = useCallback(async () => {
-    const { payload } = await dispatch(getUser(userId));
-    setUser(payload);
-  }, [userId]);
 
   const getProductInBasket = useCallback(async () => {
     const { payload } = await dispatch(getBasket(userId));
@@ -46,7 +42,8 @@ const BasketPage = () => {
   }, [userId]);
 
   useEffect(() => {
-    getUserMe();
+    dispatch(tokenIsValid());
+
     getProductInBasket();
   }, []);
 
@@ -90,26 +87,30 @@ const BasketPage = () => {
   };
 
   const handleCreateOrder = async () => {
-    const listProducts = products.map(prod => {
-      return {
-        name: prod.name,
-        quantity: prod.quantity,
-        cost: prod.quantity * prod.price
-      };
-    });
+    if (lengthList === 0) {
+      return null;
+    } else {
+      const listProducts = products.map(prod => {
+        return {
+          name: prod.name,
+          quantity: prod.quantity,
+          cost: prod.quantity * prod.price
+        };
+      });
 
-    try {
-      const createdOrder = {
-        userId,
-        products: listProducts,
-        sumOrder: sumProducts
-      };
+      try {
+        const createdOrder = {
+          userId,
+          products: listProducts,
+          sumOrder: sumProducts
+        };
 
-      await dispatch(createOrder(createdOrder));
-      await dispatch(removeBasket());
-      getProductInBasket();
-    } catch (error) {
-      return error;
+        await dispatch(createOrder(createdOrder));
+        await dispatch(removeBasket());
+        getProductInBasket();
+      } catch (error) {
+        return error;
+      }
     }
   };
 
@@ -122,7 +123,7 @@ const BasketPage = () => {
         <p className='text-2xl text-main/[0.5] '></p>
       </div>
       <div className=' mt-4 flex gap-4 md:grid'>
-        <div className='w-3/4 gap-4 border border-main/[0.1] p-2 md:w-full sm:w-full xs:w-full'>
+        <div className='w-3/4 gap-4 space-y-4 border border-main/[0.1] p-2 md:w-full sm:w-full xs:w-full'>
           {products &&
             products.map(product => {
               return (

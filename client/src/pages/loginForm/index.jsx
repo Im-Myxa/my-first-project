@@ -1,31 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
-import {
-  checkIsAuth,
-  loginUser,
-  tokenIsValid
-} from '../../store/features/auth/authSlice';
+import { loginUser } from '../../store/features/auth/authSlice';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { status } = useSelector(state => state.auth);
-  const isAuth = useSelector(checkIsAuth);
+  const { isAuth } = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isAuth) navigate('/');
-  }, [status, isAuth, navigate]);
+    if (isAuth) navigate('/products');
+  }, [isAuth, navigate]);
 
   const handleSubmit = async () => {
     try {
       await dispatch(loginUser({ email, password }));
-      await dispatch(tokenIsValid());
       setEmail('');
       setPassword('');
     } catch (error) {
+      setEmail('');
+      setPassword('');
       return error;
     }
   };

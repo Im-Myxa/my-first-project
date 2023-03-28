@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
+import { tokenIsValid } from '../../store/features/auth/authSlice';
 import { getUser } from '../../store/features/user/userSlice';
 import UserOrderMenu from './orderMenu';
 import SettingsMenu from './settingsMenu';
@@ -12,8 +13,11 @@ const UserPage = () => {
   const { userId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const getUserMe = useCallback(async () => {
     const { payload } = await dispatch(getUser(userId));
+    await dispatch(tokenIsValid());
+
     setUser(payload);
   }, [userId]);
 

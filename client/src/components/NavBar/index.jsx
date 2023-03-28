@@ -1,13 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
-import {
-  checkIsAuth,
-  // checkIsAdmin,
-  // checkIsAuth,
-  logOut,
-  tokenIsValid
-} from '../../store/features/auth/authSlice';
+import { logOut } from '../../store/features/auth/authSlice';
 import BasketIcons from './BasketIcons';
 import CloseProfileIcon from './closeProfileIcon';
 import LoginIcon from './LoginIcon';
@@ -23,27 +17,13 @@ const NavBar = () => {
   const [isMobilMenuOpen, setMobilMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const [user, setUser] = useState({});
-  const [isAdmin, setIsAdmin] = useState(false);
-  const isAuth = useSelector(checkIsAuth);
+  const { user, isAdmin, isAuth } = useSelector(state => state.auth);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const getUserMe = useCallback(async () => {
-    const { payload } = await dispatch(tokenIsValid());
-    const { user } = payload;
-    setUser(user);
-    if (user.role.includes('ADMIN')) setIsAdmin(true);
-  }, []);
-
-  useEffect(() => {
-    getUserMe();
-  }, [isAuth]);
-
-  const handleLogOut = () => {
-    dispatch(logOut());
-    getUserMe();
+  const handleLogOut = async () => {
+    await dispatch(logOut());
     window.localStorage.removeItem('token');
     navigate('/products');
   };
@@ -60,7 +40,7 @@ const NavBar = () => {
         </ul>
       </div>
       <div className='absolute right-4 flex items-center gap-2'>
-        {!user ? (
+        {!isAuth ? (
           <div onClick={() => setMobilMenuOpen(false)}>
             <NavLink to={'/auth/signIn'}>
               <LoginIcon />

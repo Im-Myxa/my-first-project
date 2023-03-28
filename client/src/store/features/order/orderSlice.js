@@ -53,7 +53,7 @@ export const orderSlice = createSlice({
       state.message = null;
     },
     [getAllOrders.fulfilled]: (state, action) => {
-      state.products = action.payload.products;
+      state.orders = action.payload;
       state.loading = false;
       state.status = 'fulfilled';
       state.message = null;
@@ -70,7 +70,7 @@ export const orderSlice = createSlice({
       state.message = null;
     },
     [getAllOrdersByUser.fulfilled]: (state, action) => {
-      state.products = action.payload.products;
+      state.orders = action.payload;
       state.loading = false;
       state.status = 'fulfilled';
       state.message = null;
