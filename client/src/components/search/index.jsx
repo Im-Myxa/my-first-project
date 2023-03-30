@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 const Search = ({ search, onHandleSearch }) => {
   return (
-    <div className='mx-auto flex w-[450px] items-center justify-center xs:w-[400px]'>
+    <div className='mx-auto flex w-[450px] items-center justify-center sm:w-[400px]'>
       <input
         type='text'
         className='border-border w-full rounded-xl border p-2 pl-10 hover:border-main/[0.4]'

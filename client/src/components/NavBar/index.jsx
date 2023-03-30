@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { logOut } from '../../store/features/auth/authSlice';
+import { getBasket } from '../../store/features/basket/basketSlice';
 import BasketIcons from './BasketIcons';
 import CloseProfileIcon from './closeProfileIcon';
 import LoginIcon from './LoginIcon';
@@ -16,17 +17,28 @@ import ProfileIcons from './ProfileIcons';
 const NavBar = () => {
   const [isMobilMenuOpen, setMobilMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  
 
   const { user, isAdmin, isAuth } = useSelector(state => state.auth);
+  const {quantityProducts} = useSelector(state => state.basket);
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
+
+  useEffect(()=>{
+    if(isAuth) {
+      dispatch(getBasket(user._id));
+    }  
+  }, []);
+
+  
 
   const handleLogOut = async () => {
     await dispatch(logOut());
     window.localStorage.removeItem('token');
     navigate('/products');
   };
+  
 
   return (
     <header className='relative flex h-28 items-center bg-gradient-to-r from-[#2C3E50] to-[#000000] font-roboto'>
@@ -94,7 +106,7 @@ const NavBar = () => {
               </div>
             )}
             <NavLink to={`/basket/${user._id}`}>
-              <BasketIcons />
+              <BasketIcons quantityProducts={quantityProducts}/>
             </NavLink>
           </div>
         )}

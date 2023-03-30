@@ -5,7 +5,8 @@ const initialState = {
   products: [],
   loading: false,
   status: null,
-  message: null
+  message: null,
+  quantityProducts: 0
 };
 
 export const getBasket = createAsyncThunk('basket/getBasket', async userId => {
@@ -86,6 +87,7 @@ export const basketSlice = createSlice({
     },
     [getBasket.fulfilled]: (state, action) => {
       state.products = action.payload.products;
+      state.quantityProducts = action.payload.products.length;
       state.loading = false;
       state.status = 'fulfilled';
       state.message = null;
@@ -102,6 +104,7 @@ export const basketSlice = createSlice({
       state.status = 'pending';
     },
     [addProductInBasket.fulfilled]: (state, action) => {
+      state.quantityProducts = action.payload.products.length;
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
@@ -118,6 +121,7 @@ export const basketSlice = createSlice({
       state.status = 'pending';
     },
     [removeProductInBasket.fulfilled]: (state, action) => {
+      state.quantityProducts = action.payload.products.length;
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
@@ -134,6 +138,7 @@ export const basketSlice = createSlice({
       state.status = 'pending';
     },
     [removeBasket.fulfilled]: (state, action) => {
+      state.quantityProducts = action.payload.products.length;
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
@@ -150,6 +155,7 @@ export const basketSlice = createSlice({
       state.status = 'pending';
     },
     [decrementProduct.fulfilled]: (state, action) => {
+      state.quantityProducts = action.payload.products.length;
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
