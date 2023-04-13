@@ -35,7 +35,7 @@ router.post("/:userId", auth, async (req, res) => {
       }
 
       await basket.save();
-      return res.status(201).json(basket);
+      return res.status(201).json({ productId, products: basket.products });
     } else {
       const newBasket = await Basket.create({
         user: userId,
@@ -49,8 +49,9 @@ router.post("/:userId", auth, async (req, res) => {
           },
         ],
       });
+
       await newBasket.save();
-      return res.status(201).json(newBasket);
+      return res.status(201).json({ product: newBasket.products[0] });
     }
   } catch (error) {
     errorHandler(res, error);
@@ -60,7 +61,7 @@ router.post("/:userId", auth, async (req, res) => {
 router.get("/:userId", auth, async (req, res) => {
   const { userId } = req.params;
 
-    if (userId === req.user) {
+  if (userId === req.user) {
     return res.status(403).json({ message: "У вас нет доступа!" });
   }
   try {
@@ -97,7 +98,7 @@ router.patch("/:userId", auth, async (req, res) => {
         basket.products[itemIndex] = productItem;
       }
       await basket.save();
-      res.status(200).json(basket);
+      res.status(200).json(basket.products[itemIndex]);
     }
   } catch (error) {
     errorHandler(res, error);
@@ -106,7 +107,6 @@ router.patch("/:userId", auth, async (req, res) => {
 
 router.delete("/:productId?", auth, async (req, res) => {
   const { productId } = req.params;
-
 
   try {
     const basket = await Basket.findOne({ user: req.user.id });
@@ -119,11 +119,10 @@ router.delete("/:productId?", auth, async (req, res) => {
       );
 
       if (itemIndex > -1) {
+        const removed = basket.products[itemIndex];
         basket.products.splice(itemIndex, 1);
         await basket.save();
-        res
-          .status(200)
-          .json({ removed: basket.products[itemIndex], message: "Удален" });
+        res.status(200).json({ removed, message: "Удален" });
       }
     } else {
       basket.products.splice(0);

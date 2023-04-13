@@ -6,7 +6,8 @@ const initialState = {
   loading: false,
   status: null,
   message: null,
-  quantityProducts: 0
+  quantityProducts: 0,
+  sumProd: 0
 };
 
 export const getBasket = createAsyncThunk('basket/getBasket', async userId => {
@@ -27,7 +28,6 @@ export const addProductInBasket = createAsyncThunk(
         `/basket/${addProduct.userId}`,
         addProduct
       );
-
       return data;
     } catch (error) {
       return error.data;
@@ -40,6 +40,7 @@ export const removeProductInBasket = createAsyncThunk(
   async productId => {
     try {
       const { data } = await axios.delete(`/basket/${productId}`);
+
       return data;
     } catch (error) {
       return error.data;
@@ -88,6 +89,10 @@ export const basketSlice = createSlice({
     [getBasket.fulfilled]: (state, action) => {
       state.products = action.payload.products;
       state.quantityProducts = action.payload.products.length;
+      const arr = action.payload.products.map(prod => {
+        return prod.price * prod.quantity;
+      });
+      state.sumProd = arr.reduce((acc, curr) => acc + curr, 0);
       state.loading = false;
       state.status = 'fulfilled';
       state.message = null;
@@ -104,9 +109,13 @@ export const basketSlice = createSlice({
       state.status = 'pending';
     },
     [addProductInBasket.fulfilled]: (state, action) => {
+      state.products = action.payload.products;
       state.quantityProducts = action.payload.products.length;
+      const arr = action.payload.products.map(prod => {
+        return prod.price * prod.quantity;
+      });
+      state.sumProd = arr.reduce((acc, curr) => acc + curr, 0);
       state.loading = false;
-      state.message = action.payload.message;
       state.status = 'fulfilled';
     },
     [addProductInBasket.rejected]: (state, action) => {
@@ -121,7 +130,17 @@ export const basketSlice = createSlice({
       state.status = 'pending';
     },
     [removeProductInBasket.fulfilled]: (state, action) => {
-      state.quantityProducts = action.payload.products.length;
+      const products = state.products.filter(prod => {
+        return prod._id !== action.payload.removed._id;
+      });
+      state.products = products;
+      state.quantityProducts = products.length;
+
+      const arr = products.map(prod => {
+        return prod.price * prod.quantity;
+      });
+      state.sumProd = arr.reduce((acc, curr) => acc + curr, 0);
+
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
@@ -138,7 +157,9 @@ export const basketSlice = createSlice({
       state.status = 'pending';
     },
     [removeBasket.fulfilled]: (state, action) => {
-      state.quantityProducts = action.payload.products.length;
+      state.products.splice(0);
+      state.quantityProducts = 0;
+      state.sumProd = 0;
       state.loading = false;
       state.message = action.payload.message;
       state.status = 'fulfilled';
@@ -155,9 +176,17 @@ export const basketSlice = createSlice({
       state.status = 'pending';
     },
     [decrementProduct.fulfilled]: (state, action) => {
-      state.quantityProducts = action.payload.products.length;
+      const index = state.products.findIndex(prod => {
+        return prod._id === action.payload._id;
+      });
+      state.products[index] = action.payload;
+
+      const arr = state.products.map(prod => {
+        return prod.price * prod.quantity;
+      });
+      state.sumProd = arr.reduce((acc, curr) => acc + curr, 0);
+
       state.loading = false;
-      state.message = action.payload.message;
       state.status = 'fulfilled';
     },
     [decrementProduct.rejected]: (state, action) => {

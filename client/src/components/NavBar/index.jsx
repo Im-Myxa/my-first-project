@@ -17,28 +17,26 @@ import ProfileIcons from './ProfileIcons';
 const NavBar = () => {
   const [isMobilMenuOpen, setMobilMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  
 
   const { user, isAdmin, isAuth } = useSelector(state => state.auth);
-  const {quantityProducts} = useSelector(state => state.basket);
+  const { quantityProducts } = useSelector(state => state.basket);
 
   const dispatch = useDispatch();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
-  useEffect(()=>{
-    if(isAuth) {
-      dispatch(getBasket(user._id));
-    }  
-  }, []);
+  const handleBasketLength = async () => {
+    await dispatch(getBasket(user._id));
+  };
 
-  
+  useEffect(() => {
+    handleBasketLength();
+  }, [user]);
 
   const handleLogOut = async () => {
     await dispatch(logOut());
     window.localStorage.removeItem('token');
     navigate('/products');
   };
-  
 
   return (
     <header className='relative flex h-28 items-center bg-gradient-to-r from-[#2C3E50] to-[#000000] font-roboto'>
@@ -106,7 +104,7 @@ const NavBar = () => {
               </div>
             )}
             <NavLink to={`/basket/${user._id}`}>
-              <BasketIcons quantityProducts={quantityProducts}/>
+              <BasketIcons quantityProducts={quantityProducts} />
             </NavLink>
           </div>
         )}

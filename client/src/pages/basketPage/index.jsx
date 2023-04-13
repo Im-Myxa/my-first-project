@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { tokenIsValid } from '../../store/features/auth/authSlice';
@@ -13,37 +13,21 @@ import { createOrder } from '../../store/features/order/orderSlice';
 import { formatQuantity } from '../../utils/formatQuantity';
 
 const BasketPage = () => {
-  const [products, setProducts] = useState('');
-  const [sumProducts, setSumProducts] = useState('');
-  const [lengthList, setLengthList] = useState(0);
-
   const { user } = useSelector(state => state.auth);
+  const { quantityProducts, products, sumProd } = useSelector(
+    state => state.basket
+  );
 
   const { userId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const getProductInBasket = useCallback(async () => {
-    const { payload } = await dispatch(getBasket(userId));
-    setProducts(payload.products);
-
-    const products = payload.products;
-    if (products) {
-      setLengthList(products.length);
-      const arr = products.map(prod => {
-        return prod.price * prod.quantity;
-      });
-      const sum = arr.reduce((acc, curr) => acc + curr, 0);
-      setSumProducts(sum);
-    } else {
-      setLengthList(0);
-      setSumProducts(0);
-    }
-  }, [userId]);
+  const getProductInBasket = async () => {
+    await dispatch(getBasket(userId));
+  };
 
   useEffect(() => {
     dispatch(tokenIsValid());
-
     getProductInBasket();
   }, []);
 
@@ -55,7 +39,6 @@ const BasketPage = () => {
   const handleRemoveProduct = async productId => {
     try {
       await dispatch(removeProductInBasket(productId));
-      getProductInBasket();
     } catch (error) {
       return error;
     }
@@ -68,7 +51,6 @@ const BasketPage = () => {
         productId
       };
       await dispatch(addProductInBasket(addProduct));
-      getProductInBasket();
     } catch (error) {
       return error;
     }
@@ -80,34 +62,32 @@ const BasketPage = () => {
         productId
       };
       await dispatch(decrementProduct(decrementedProduct));
-      getProductInBasket();
     } catch (error) {
       return error;
     }
   };
 
   const handleCreateOrder = async () => {
-    if (lengthList === 0) {
+    if (quantityProducts === 0) {
       return null;
     } else {
-      const listProducts = products.map(prod => {
-        return {
-          name: prod.name,
-          quantity: prod.quantity,
-          cost: prod.quantity * prod.price
-        };
-      });
-
       try {
+        const listProducts = products.map(prod => {
+          return {
+            name: prod.name,
+            quantity: prod.quantity,
+            cost: prod.quantity * prod.price
+          };
+        });
+
         const createdOrder = {
           userId,
           products: listProducts,
-          sumOrder: sumProducts
+          sumOrder: sumProd
         };
 
         await dispatch(createOrder(createdOrder));
         await dispatch(removeBasket());
-        getProductInBasket();
       } catch (error) {
         return error;
       }
@@ -118,7 +98,7 @@ const BasketPage = () => {
     <div className='mx-auto my-16 font-roboto text-main lg:w-[1000px] md:w-[750px] sm:w-[470px] xs:w-[400px]'>
       <div className='flex space-x-2'>
         <p className='text-2xl'>
-          Ваша корзина, {lengthList} {formatQuantity(lengthList)}
+          Ваша корзина, {quantityProducts} {formatQuantity(quantityProducts)}
         </p>
         <p className='text-2xl text-main/[0.5] '></p>
       </div>
@@ -234,12 +214,14 @@ const BasketPage = () => {
         <div className='h-64 w-1/4 space-y-4 rounded-lg border border-main/[0.1] p-2 md:w-[300px]'>
           <p className='border-b border-main/[0.1] p-2 text-xl'>Ваш заказ</p>
           <div className='flex items-center justify-between p-2'>
-            <p className='text-lg text-main/[0.8]'>Товары ({lengthList}):</p>
-            <p className='text-lg text-main/[0.8]'>{sumProducts} ₽</p>
+            <p className='text-lg text-main/[0.8]'>
+              Товары ({quantityProducts}):
+            </p>
+            <p className='text-lg text-main/[0.8]'>{sumProd} ₽</p>
           </div>
           <div className='flex items-center justify-between p-2'>
             <p className='text-lg text-main/[0.8]'>Итого:</p>
-            <p className='text-2xl font-bold text-main'>{sumProducts} ₽</p>
+            <p className='text-2xl font-bold text-main'>{sumProd} ₽</p>
           </div>
           <button
             onClick={handleCreateOrder}
